@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import re
-
 import numpy as np
 from PIL import Image
 
@@ -23,6 +22,28 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     img.save(filename)
 
 
+
+
+# Extract width
+ancho_pattern = r"^Ancho (?P<ancho>\d+)" # Captura el Ancho dado
+
+number_pattern = r"0|[1-9](?:0|[1-9])*"
+
+# Colores
+color_pattern = r"Rojo|Verde|Azul|Negro|Blanco|RGB *\( *(?:{np}) *, *(?:{np}) *, *(?:{np}) *\)".format(np = number_pattern)
+
+# Background color
+bg_color_pattern = r"Color de fondo (?P<bg_color>{})".format(color_pattern) # Captura el color de fondo
+
+# declaraciones
+avanzar_statement_pattern = r"Avanzar(?: [1-9][0-9]*)?".format(number_pattern)
+girar_statement_pattern = r"Izquierda|Derecha"
+pintar_statement_pattern = r"Pintar (?: {})".format(color_pattern)
+repetir_statement_pattern = r"Repetir [1-9][0-9]* veces {"
+
+statements_pattern = "|".join([avanzar_statement_pattern, girar_statement_pattern, pintar_statement_pattern, repetir_statement_pattern])
+
+
 def parseColor(color):
     '''
     Parsea un color en formato RGB(d, d, d) y devuelve una tupla de enteros.
@@ -32,7 +53,7 @@ def parseColor(color):
     '''
     esUnColorPredefinido = re.compile(r"(Rojo)|(Verde)|(Azul)|(Negro)|(Blanco)")
     if esUnColorPredefinido.match(color) == None:
-        extract_colors = re.compile(r"RGB\((\d+), (\d+), (\d+)\)")
+        extract_colors = re.compile(r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pattern))
         extract_colors = extract_colors.match(color)
         if extract_colors == None:
             pass # TODO: Error
@@ -57,53 +78,78 @@ def parseColor(color):
             print("Error: Nombre de color equivocado")
             exit()
 
+def run(code, state = [0, 0]):
+    '''
+    Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
+    Devuelve una tupla con el estado final
+    '''
+    closed = re.match(r"}", code)
+    if closed != None:
+        state[1] -= 1
+        print("}")
+        run(code[2:], state)
+    match = re.match(r"({})([a-zA-Z0-9{} \n\t]*)".format(statements_pattern, "{}"), code)
+    if match == None:
+        return None
+    
+    h, t = match.groups()
+    t = re.sub(r"^ ", "", t)
+    print("\t"*state[1]+h)
+    if re.match(repetir_statement_pattern, h) != None:
+        state[1] += 1
+    run(t, [state[0]+1, state[1]])
 
-codigo = '''Ancho 10
-Color de fondo RGB(255, 0, 0)
-
-Avanzar Derecha Avanzar
-Repetir 4 veces {
-	Repetir 8 veces { Pintar Negro Avanzar }
-	Derecha Derecha Avanzar Derecha
-}
-'''
+        
 
 
 
-# Extract width
-Ancho_Pattern = r"^Ancho (\d+)"
+codigo = '''Ancho 8
+Color de fondo RGB(13,181,13)
+
+Avanzar Derecha Avanzar 2
+Pintar Negro Avanzar
+Repetir 2 veces { Pintar Negro Izquierda Avanzar }
+Pintar Negro
+Derecha Avanzar 3
+Pintar Negro Avanzar
+Repetir 2 veces { Pintar Negro Derecha Avanzar }
+Pintar Negro
+Izquierda Avanzar
+Repetir 3 veces { Avanzar Pintar Negro }
+Derecha Avanzar 3 Derecha
+Repetir 3 veces { Pintar Negro Avanzar}
+Derecha Avanzar
+Repetir 3 veces {
+Pintar Negro Avanzar
+Pintar Negro Derecha Avanzar
+Derecha Avanzar Derecha Derecha
+}'''
 
 
-# Extract background color
-Background_color = r"Color de fondo (.+)"
-color_fondo = re.compile(r"^Color de fondo (.+)$", re.M)
-color_fondo = color_fondo.search(codigo)
-if color_fondo == None:
-    pass # TODO Error
-    print("Error: No se encontro el color de fondo")
-    exit()
-color_fondo = color_fondo.groups()[0]
-color_fondo = parseColor(color_fondo)
-print("Color de fondo:", color_fondo)
 
 
 # Verify that the code is well formed
-verify = re.compile(Ancho_Pattern+r"\nColor de fondo (.+)(?: *\n){2}([a-zA-Z0-9{} \n\t]*$)")
+verify = re.compile(''.join([ ancho_pattern, r"\n", bg_color_pattern, r"(?: *\n){2}(?P<code>[a-zA-Z0-9{} \n\t]*$)" ]))
 verify = verify.match(codigo)
 if verify == None:
     pass # TODO Error
     print("Error: Codigo mal formado")
     exit()
-command = verify.groups()
 
-print()
-print()
-print("comandos:")
-print(command)
-print()
-for comando in command:
-    print(comando)
+ancho_elegido = int(verify.group('ancho'))
+color_elegido = parseColor(verify.group('bg_color'))
+comandos = verify.group('code')
+comandos = re.sub(r"(\n)+|(\t)+", r" ", comandos) # Elimina saltos de linea y tabs
+comandos = re.sub(r"( )+", r" ", comandos) # Elimina espacios repetidos
 
+print("Ancho:")
+print(ancho_elegido)
+print("Color:")
+print(color_elegido)
+print("Comandos:")
+print(comandos)
+
+run(comandos)
 
 
 
