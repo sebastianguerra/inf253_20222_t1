@@ -3,11 +3,11 @@
 import numpy as np # pip install numpy
 from PIL import Image # pip install Pllow
 
-data = [
-    [(255, 0  , 0  ), (0, 0, 0), (0, 0  , 255)],
-    [(0  , 0  , 0  ), (0, 0, 0), (0, 0  , 0  )],
-    [(255, 255, 255), (0, 0, 0), (0, 255, 0  )],  
-]
+# data = [
+#     [(255, 255, 255), (0, 0, 0), (0, 0  , 255)],
+#     [(0  , 0  , 0  ), (0, 0, 0), (0, 0  , 0  )],
+#     [(255, 255, 255), (0, 0, 0), (0, 255, 0  )],  
+# ]
 
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
@@ -27,4 +27,4 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     img = img.resize((N*10, N*10), Image.Resampling.BOX)
     img.save(filename)
 
-MatrizAImagen(data)
+# MatrizAImagen(data)
