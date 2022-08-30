@@ -9,54 +9,9 @@ from patrones import \
         newline_placeholder
 
 
-# txt = '''Ancho 13
-# Color de fondo Rojo
-
-# Avanzar Derecha Avanzar 2
-# Pintar Blanco Avanzar
-# Repetir 2 veces {Pintar Negro Izquierda Avanzar }
-# Pintar Negro
-# Derecha Avanzar 3
-# Pintar Negro Avanzar
-# Repetir 2 veces { Pintar Negro Repetir 3 veces {Avanzar} Derecha Avanzar }
-# Pintar Negro
-# Izquierda Avanzar
-# Repetir 3 veces { Avanzar Pintar Negro }
-# Derecha Avanzar 3 Derecha
-# Repetir 3 veces { Pintar Negro Avanzar}
-# Derecha Avanzar
-# Repetir 3 veces {
-# Pintar Azul Avanzar
-# Pintar Negro Derecha Avanzar
-# Derecha Avanzar Derecha Derecha
-# }'''
-# txt = '''Ancho 3
-# Color de fondo Blanco
-
-# Avanzar Pintar Negro
-# '''
-
 ### Crea la imagen de un Creeper
-txt = '''Ancho 8
-Color de fondo RGB(0,200,0)
-
-Derecha Avanzar Izquierda Avanzar
-Repetir 4 veces {
-        Pintar Negro Avanzar Derecha
-        }
-Avanzar 4
-Repetir 4 veces {
-        Pintar Negro Avanzar Derecha
-        }
-Derecha Avanzar 2 Derecha Avanzar 2 Derecha Derecha
-Repetir 4 veces {
-        Pintar Negro Avanzar Derecha
-        }
-Derecha Derecha Avanzar Izquierda Avanzar Repetir 3 veces {Pintar Negro Avanzar}
-Izquierda Avanzar 3 Izquierda Avanzar Repetir 3 veces {Pintar Negro Avanzar}
-Izquierda Izquierda Avanzar 2 Derecha Repetir 2 veces {Avanzar Pintar Negro}
-
-'''
+with open("codigo.txt") as f:
+    txt = f.read()
 print(txt)
 
 

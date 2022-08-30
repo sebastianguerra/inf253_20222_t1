@@ -128,9 +128,9 @@ def parseCode(code, n=0, iden=0, ln=3):
 
     return [I] + parseCode(t, n+1, iden, ln)
 
-dirList = [(0,1), (1,0), (0,-1), (-1,0)]
 
 def sttmnt_advance(state, n):
+    dirList = [(0,1), (1,0), (0,-1), (-1,0)]
     pos = state[1]
     dir = state[2]
     for i in range(n):

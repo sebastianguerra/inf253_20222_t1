@@ -1,0 +1,18 @@
+Ancho 8
+Color de fondo RGB(0,255,0)
+
+Derecha Avanzar Izquierda Avanzar
+Repetir 4 veces {
+        Pintar Negro Avanzar Derecha
+        }
+Avanzar 4
+Repetir 4 veces {
+        Pintar Negro Avanzar Derecha
+        }
+Derecha Avanzar 2 Derecha Avanzar 2 Derecha Derecha
+Repetir 4 veces {
+        Pintar Negro Avanzar Derecha
+        }
+Derecha Derecha Avanzar Izquierda Avanzar Repetir 3 veces {Pintar Negro Avanzar}
+Izquierda Avanzar 3 Izquierda Avanzar Repetir 3 veces {Pintar Negro Avanzar}
+Izquierda Izquierda Avanzar 2 Derecha Repetir 2 veces {Avanzar Pintar Negro}
