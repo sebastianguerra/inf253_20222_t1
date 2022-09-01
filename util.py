@@ -161,6 +161,8 @@ def run(bcode, state, codigo=""):
     '''
     Ejecuta el codigo en el estado actual
     '''
+    if bcode == []:
+        return state
     h = bcode[0]
     t = bcode[1:]
     if h[1] == "A":
@@ -172,5 +174,5 @@ def run(bcode, state, codigo=""):
     elif h[1] == "R":
         state2 = sttmnt_repeat(state, h[2][0], h[2][1])
 
-    return run(t, state2, codigo) if t != [] else state2
+    return run(t, state2, codigo)
 
