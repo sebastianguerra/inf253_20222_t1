@@ -59,9 +59,7 @@ def parseCode(code, n=0, iden=0, ln=3):
     
     closed = re.match(r"}", code)
     if closed != None:
-        # print("\t"*iden+"}")
         return []
-        # return parseCode(code[2:], n, iden-1, ln)
 
     newline = re.match(newline_placeholder, code)
     if newline != None:
@@ -76,7 +74,7 @@ def parseCode(code, n=0, iden=0, ln=3):
     t = match.group('tail')
     t = re.sub(r"^ ", "", t)
 
-    I = [n, "", []] # TODO Cambiar n por ln
+    I = [(n, ln), "", []] # TODO Cambiar n por ln
     
     # Repetir <n> veces {}
     if re.match(repetir_statement_pattern, h) != None:
@@ -86,7 +84,7 @@ def parseCode(code, n=0, iden=0, ln=3):
         I[2] = (cantidad.group("repetir_nveces") , parseCode(t, n+1, iden+1, ln))
         m = 1
         while m > 0:
-            print(t)
+            # print(t)
             c = t[0]
             if c == "}":
                 m -= 1
