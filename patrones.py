@@ -11,7 +11,7 @@ bg_color_pattern = r"Color de fondo (?P<bg_color>{})".format(color_pattern) # Ca
 # declaraciones
 avanzar_statement_pattern = r"Avanzar(?P<avanzar_nveces> [1-9][0-9]*)?".format(number_pattern)
 girar_statement_pattern = r"Izquierda|Derecha"
-pintar_statement_pattern = r"Pintar (?P<pintar_color> {})".format(color_pattern)
+pintar_statement_pattern = r"Pintar (?P<pintar_color>{})".format(color_pattern)
 repetir_statement_pattern = r"Repetir (?P<repetir_nveces>[1-9][0-9]*) veces {"
 
 statements_pattern = "|".join([
