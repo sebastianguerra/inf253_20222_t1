@@ -1,5 +1,14 @@
 Ancho 8
-Color de fondo RGB(0,200,0)
+Color de fondo RGB(0,200,0)   
+    
+      
+     
+
+
+
+       
+     
+
 
 Repetir 1 veces {
   Repetir 1 veces {

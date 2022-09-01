@@ -45,7 +45,7 @@ def parseColor(color):
             print("Error: Nombre de color equivocado")
             exit()
 
-def parseCode(code, n=0, iden=0, ln=3):
+def parseCode(code, n=0, iden=0, ln=4):
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
     Devuelve una tupla con el estado final
@@ -84,6 +84,8 @@ def parseCode(code, n=0, iden=0, ln=3):
         I[2] = (cantidad.group("repetir_nveces") , parseCode(t, n+1, iden+1, ln))
         m = 1
         while m > 0:
+            if re.match(newline_placeholder, t) != None:
+                ln += 1
             # print(t)
             c = t[0]
             if c == "}":

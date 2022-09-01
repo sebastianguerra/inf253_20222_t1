@@ -8,7 +8,7 @@ from patrones import \
         bg_color_pattern, \
         newline_placeholder
 
-DEBUG = False
+DEBUG = True
 
 ### Crea la imagen de un Creeper
 with open("codigo.txt") as f:
@@ -18,7 +18,7 @@ if DEBUG:
 
 
 # Verify that the code is well formed
-verify = re.compile(''.join([ ancho_pattern, r"\n", bg_color_pattern, r"(?: *\n){2}(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]))
+verify = re.compile(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]))
 verify = verify.match(txt)
 if verify == None:
     pass # TODO Error
@@ -35,7 +35,7 @@ codigo = re.sub(r"(?! ){", " {", codigo)
 codigo = re.sub(r"{(?! )", "{ ", codigo)
 codigo = re.sub(r"(?! )}", " }", codigo)
 codigo = re.sub(r"}(?! )", "}" , codigo)
-codigo = re.sub(r"(\n)+", " {} ".format(newline_placeholder), codigo)
+codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo)
 codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina saltos de linea y tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
@@ -57,6 +57,10 @@ if DEBUG:
             if i[0][0] < 10:
                 print("0", end="")
             print(i[0][0], end=' ')
+
+            if i[0][1] < 10:
+                print("0", end="")
+            print(i[0][1], end=' ')
             if i[1] == "R":
                 print("\t"*ident, end="")
                 print(i[1], i[2][0])
