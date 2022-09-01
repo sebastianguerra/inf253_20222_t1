@@ -16,7 +16,7 @@ print(txt)
 
 
 # Verify that the code is well formed
-verify = re.compile(''.join([ ancho_pattern, r"\n", bg_color_pattern, r"(?: *\n){2}(?P<code>[a-zA-Z0-9{} \n\t]*$)" ]))
+verify = re.compile(''.join([ ancho_pattern, r"\n", bg_color_pattern, r"(?: *\n){2}(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]))
 verify = verify.match(txt)
 if verify == None:
     pass # TODO Error

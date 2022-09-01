@@ -29,6 +29,7 @@ def parseColor(color):
         R, G, B = grupos
         return (int(R), int(G), int(B))
     else:
+        # TODO usar re.match
         if color == 'Rojo':
             return (255, 0, 0)
         elif color == 'Verde':
@@ -66,7 +67,7 @@ def parseCode(code, n=0, iden=0, ln=3):
     if newline != None:
         return parseCode(code[10:], n, iden, ln+1)
 
-    match = re.match(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{} \n\t]*)".format(statements_pattern, "{}"), code)
+    match = re.match(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
     if match == None:
         print("No coincide: \"" + code + "\"")
         return []
@@ -85,6 +86,7 @@ def parseCode(code, n=0, iden=0, ln=3):
         I[2] = (cantidad.group("repetir_nveces") , parseCode(t, n+1, iden+1, ln))
         m = 1
         while m > 0:
+            print(t)
             c = t[0]
             if c == "}":
                 m -= 1
