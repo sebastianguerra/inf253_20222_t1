@@ -1,31 +1,69 @@
-Ancho 8
-Color de fondo RGB(0,200,0)   
-    
-      
-     
+Ancho 18
+Color de fondo Rojo
 
-
-
-       
-     
-
-
-Repetir 1 veces {
-  Repetir 1 veces {
-    Derecha Avanzar Izquierda Avanzar
-    Repetir 4 veces {
-      Pintar RGB(0, 50, 0) Avanzar Derecha
-    }
-    Avanzar 4
-    Repetir 4 veces {
-      Pintar RGB(0,50,0) Avanzar Derecha
-    }
-    Derecha Avanzar 2 Derecha Avanzar 2 Derecha Derecha
-    Repetir 4 veces {
-      Pintar RGB(0,50,0) Avanzar Derecha
-    }
-    Derecha Derecha Avanzar Izquierda Avanzar Repetir 3 veces {Pintar RGB(0,50,0) Avanzar}
-    Izquierda Avanzar 3 Izquierda Avanzar Repetir 3 veces {Pintar RGB(0,50,0) Avanzar}
-    Izquierda Izquierda Avanzar 2 Derecha Repetir 2 veces {Avanzar Pintar RGB(0,50,0)}
-  }
+Derecha Avanzar 14 Izquierda
+Avanzar 2 Pintar RGB(255,255,0)
+Repetir 3 veces {
+Izquierda Avanzar Pintar RGB(255,255,0)
+Derecha Avanzar Pintar RGB(255,255,0)
 }
+Derecha Avanzar Pintar RGB(255,255,0)
+Repetir 2 veces {
+Derecha Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+}
+Izquierda Avanzar 3 Izquierda
+Avanzar 2 Izquierda
+Repetir 2 veces {
+Izquierda Avanzar Izquierda
+Repetir 5 veces {
+Pintar RGB(255,255,0) Avanzar
+}
+Pintar RGB(255,255,0)
+}
+Repetir 2 veces { Izquierda }
+Avanzar 6 Pintar RGB(255,255,0)
+Avanzar Pintar RGB(255,255,0)
+Repetir 2 veces {
+Derecha Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+}
+Izquierda Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar
+Derecha Avanzar Pintar RGB(255,255,0)
+Avanzar 2 Repetir 5 veces { Pintar RGB(255,255,0) Avanzar }
+Izquierda Repetir 2 veces {
+Avanzar Pintar RGB(255,255,0)
+}
+Derecha Avanzar Pintar RGB(255,255,0)
+Izquierda Repetir 4 veces {
+Avanzar Pintar RGB(255,255,0)
+}
+Repetir 2 veces { Derecha Avanzar }
+Repetir 3 veces { Pintar RGB(255,255,0) Avanzar }
+Avanzar Derecha Avanzar 3
+Repetir 5 veces {
+Pintar RGB(255,255,0) Avanzar
+}
+Pintar RGB(255,255,0)
+Derecha Repetir 2 veces { Avanzar Pintar RGB(255,255,0) }
+Repetir 3 veces {
+Derecha Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+}
+Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar
+Repetir 2 veces { Pintar RGB(255,255,0) Derecha Avanzar }
+Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+Repetir 2 veces { Derecha Avanzar }
+Pintar RGB(255,255,0) Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Derecha
+Repetir 4 veces { Pintar RGB(255,255,0) Avanzar }
+Repetir 2 veces { Derecha Avanzar }
+Repetir 2 veces { Avanzar Pintar RGB(255,255,0) }
+Repetir 2 veces { Izquierda }
+Avanzar 2 Derecha Avanzar Pintar RGB(255,255,0)
+Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+Avanzar Derecha Avanzar Pintar RGB(255,255,0)
