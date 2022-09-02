@@ -108,7 +108,7 @@ def parseCode(code, n=0, iden=0, ln=4):
 
     # Rotar Izquierda|Derecha
     elif re.match(girar_statement_pattern, h) != None:
-        I[1] = "r"
+        I[1] = "G"
         if re.match(r"Izquierda", h) != None:
             I[2] = -1
         elif re.match(r"Derecha", h) != None:
@@ -167,7 +167,7 @@ def run(bcode, state, codigo=""):
     t = bcode[1:]
     if h[1] == "A":
         state2 = sttmnt_advance(state, h[2])
-    elif h[1] == "r":
+    elif h[1] == "G":
         state2 = sttmnt_rotate(state, h[2])
     elif h[1] == "P":
         state2 = sttmnt_paint(state, h[2])
