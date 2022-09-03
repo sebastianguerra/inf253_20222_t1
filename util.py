@@ -9,8 +9,14 @@ from patrones import \
     avanzar_statement_pattern, \
     newline_placeholder
 
+from typing import Literal, Any
 
-def parseColor(color: str) -> tuple[int, int, int]:
+ColorType = tuple[int, int, int]
+InstructionType = tuple[tuple[int, int], Literal["E", "R", "A", "G", "P"], Any]
+ArgsType = tuple[int, list[InstructionType]] | int | ColorType
+StateType = tuple[list[list[ColorType]], tuple[int, int], int]
+
+def parseColor(color: str) -> ColorType:
     '''
     Parsea un color en formato RGB(d, d, d) y devuelve una tupla de enteros.
     Tambien puede ser 'Rojo', 'Verde', 'Azul', 'Negro' o 'Blanco'
@@ -45,7 +51,6 @@ def parseColor(color: str) -> tuple[int, int, int]:
             print("Error: Nombre de color equivocado")
             exit()
 
-InstructionType = tuple[tuple[int, int], str, list]
 def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> tuple[set[int], list[InstructionType]]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
@@ -53,13 +58,13 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     '''
 
     I_data: tuple[int, int] = (n, ln)
-    I_type: str = ""
-    I_args = []
+    I_type: str = "E"
+    I_args: list[Any]|ColorType|tuple[int, list[InstructionType]]|int= []
 
 
-    code = re.sub(r"^ ", "", code)
+    code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
 
-    if re.match(r"^ *$", code) != None:
+    if re.fullmatch(r" *", code) != None:
         return set(), []
     
     if re.match(r"}", code) != None:
@@ -71,28 +76,26 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         longitud = len(newline_placeholder) + 1
         return parseCode(errores, code[longitud:], n, iden, ln+1)
 
-    match = re.match(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
+    match = re.fullmatch(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
     if match == None:
-        print("No coincide: \"" + code + "\"")
-        return set(), []
+        print("No coincide: \"" + code + "\"") # TODO: manejar error
+        return set(), [] # TODO: Seguir analizando el resto del codigo
     
     h = match.group('head')
     t = match.group('tail')
-    t = re.sub(r"^ ", "", t)
 
     
     # Repetir <n> veces {}
-    if re.match(repetir_statement_pattern, h) != None:
+    repetir_result = re.match(repetir_statement_pattern, h)
+    if repetir_result != None:
         I_type = "R"
-        cantidad = re.match(repetir_statement_pattern, h)
         err, result = parseCode(errores, t, n+1, iden+1, ln)
         errores.update(err)
-        I_args = (cantidad.group("repetir_nveces") , result)
+        I_args = (int(repetir_result.group("repetir_nveces")), result)
         m = 1
         while m > 0:
             if re.match(newline_placeholder, t) != None:
                 ln += 1
-            # print(t)
             c = t[0]
             if c == "}":
                 m -= 1
@@ -111,7 +114,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             exit()
             # TODO: Error
         color = color.groups()[0]
-        chosen_color = parseColor(color)
+        chosen_color: ColorType = parseColor(color)
         I_type = "P"
         I_args = chosen_color
 
@@ -142,7 +145,6 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     return errores, [(I_data, I_type, I_args)] + res[1]
 
 
-stateType = tuple[list[list[tuple[int, int, int]]], tuple[int, int], int]
 
 def sttmnt_advance(state, n):
     dirList = [(0,1), (1,0), (0,-1), (-1,0)]
@@ -170,14 +172,16 @@ def sttmnt_repeat(state, n, bcode):
     return state
 
 
-def run(bcode, state, codigo=""):
+def run(bcode: list[InstructionType], state: StateType, codigo: str = "") -> StateType:
     '''
     Ejecuta el codigo en el estado actual
     '''
     if bcode == []:
         return state
-    h = bcode[0]
-    t = bcode[1:]
+
+    h:      InstructionType  = bcode[0]
+    t: list[InstructionType] = bcode[1:]
+
     if h[1] == "A":
         state2 = sttmnt_advance(state, h[2])
     elif h[1] == "G":
@@ -186,6 +190,9 @@ def run(bcode, state, codigo=""):
         state2 = sttmnt_paint(state, h[2])
     elif h[1] == "R":
         state2 = sttmnt_repeat(state, h[2][0], h[2][1])
+    else:
+        print("Error: Instruccion no reconocida")
+        exit()
 
     return run(t, state2, codigo)
 

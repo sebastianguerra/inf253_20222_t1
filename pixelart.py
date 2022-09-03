@@ -17,17 +17,16 @@ if DEBUG:
     print(txt)
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
-verify = re.match(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
+verify: re.Match[str]|None = re.match(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
 if verify == None: # El codigo no cumple con la estructura necesaria
-    pass # TODO Error
+    pass # TODO: Encontrar el error y mostrarlo
     print("Error: Codigo mal formado")
     exit()
 
-ancho_elegido: int = int(verify.group('ancho'))
+ancho_elegido: int            =             int(verify.group('ancho'))
+color_elegido: util.ColorType = util.parseColor(verify.group('bg_color'))
+codigo       : str            =                 verify.group('code')
 
-color_elegido: tuple[int, int, int] = util.parseColor(verify.group('bg_color'))
-
-codigo: str = verify.group('code')
 
 codigo = re.sub(r"(?! ){", " {", codigo) # Agrega un espacio antes de {
 codigo = re.sub(r"{(?! )", "{ ", codigo) # Agrega un espacio despues de {
@@ -38,22 +37,16 @@ codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo) # Agrega un
 codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
-if DEBUG:
-    print("Ancho:")
-    print(ancho_elegido)
-    print("Color:")
-    print(color_elegido)
-    print("Codigo:")
-    print(codigo)
-    print()
 
-res: tuple[set[int], list[util.InstructionType]] = util.parseCode(set(), codigo)
+res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(set(), codigo)
 errors, bytecode = res[0], res[1]
 
-print(errors)
-if errors != set():
-    print("Ocurrio un error")
+if len(errors) > 0:
+    for error in errors:
+        print(error, txt.splitlines()[error-1])
     exit()
+else:
+    print("No hay errores!")
 
 if DEBUG:
     print("Bytecode:")
@@ -76,14 +69,14 @@ if DEBUG:
                 print(i[1], i[2])
     printBytecode(bytecode)
 
-iMatrix: list[list[tuple[int, int, int]]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
+iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
 pos: tuple[int, int] = (0,0)
 dir: int = 0
 
-state: util.stateType = (iMatrix, pos, dir)
+state: util.StateType = (iMatrix, pos, dir)
 
-state: util.stateType = util.run(bytecode, state, codigo)
+state: util.StateType = util.run(bytecode, state, codigo)
 
-rMatrix: list[list[tuple[int, int, int]]] = state[0]
+rMatrix: list[list[util.ColorType]] = state[0]
 createImage.MatrizAImagen(rMatrix)
 
