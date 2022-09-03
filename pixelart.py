@@ -27,10 +27,9 @@ color_elegido: util.ColorType = util.parseColor(verify.group('bg_color'))
 codigo       : str            =                 verify.group('code')
 
 
-codigo = re.sub(r"(?! ){", " {", codigo) # Agrega un espacio antes de {
-codigo = re.sub(r"{(?! )", "{ ", codigo) # Agrega un espacio despues de {
-codigo = re.sub(r"(?! )}", " }", codigo) # Agrega un espacio antes de }
-codigo = re.sub(r"}(?! )", "} " , codigo) # Agrega un espacio despues de }
+# Agrega espacios antes y despues de los corchetes
+codigo = re.sub(r"{", " { ", codigo)
+codigo = re.sub(r"}", " } ", codigo)
 
 codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo) # Agrega un placeholder para los saltos de linea
 codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
