@@ -1,5 +1,5 @@
 Ancho 18
-Color de fondo Rojo
+Color de fondo RGB(200, 100, 150)
 
 Derecha Avanzar 14 Izquierda
 Avanzar 2 Pintar RGB(255,255,0)

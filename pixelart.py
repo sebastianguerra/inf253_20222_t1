@@ -13,18 +13,27 @@ from patrones import \
 with open("codigo.txt") as f:
     txt: str = f.read()
 
+errores: set[int] = set()
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
-verify: re.Match[str]|None = re.match(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
+verify: re.Match[str]|None = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
 if verify == None: # El codigo no cumple con la estructura necesaria
     pass # TODO: Encontrar el error y mostrarlo
     print("Error: Codigo mal formado")
     exit()
 
 
-ancho_elegido: int            =             int(verify.group('ancho'))
-color_elegido: util.ColorType = util.parseColor(verify.group('bg_color'))
-codigo       : str            =                 verify.group('code')
+
+ancho_elegido: int = int(verify.group('ancho'))
+
+color_elegido_res: util.ColorType|None = util.parseColor(verify.group('bg_color'))
+if color_elegido_res == None:
+    errores.add(2)
+    color_elegido = (0, 0, 0)
+else:
+    color_elegido: util.ColorType = color_elegido_res
+
+codigo: str = verify.group('code')
 
 
 # Agrega espacios antes y despues de los corchetes
@@ -36,7 +45,7 @@ codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 
-res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(set(), codigo)
+res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(errores, codigo)
 errores, bytecode = res[0], res[1]
 
 if len(errores) > 0:

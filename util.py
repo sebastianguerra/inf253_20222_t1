@@ -18,7 +18,7 @@ StateType = tuple[list[list[ColorType]], tuple[int, int], int]
 InstructionType = tuple[tuple[int, int], Callable[[StateType], StateType]]
 
 
-def parseColor(color: str) -> ColorType:
+def parseColor(color: str) -> ColorType|None:
     '''
     Parsea un color en formato RGB(d, d, d) o un color literal y devuelve una tupla de enteros.
     El color literal puede ser 'Rojo', 'Verde', 'Azul', 'Negro' o 'Blanco'
@@ -35,6 +35,12 @@ def parseColor(color: str) -> ColorType:
             exit()
         grupos = extract_colors.groups()
         R, G, B = grupos
+        if R == None or G == None or B == None:
+            return None
+        if int(R) > 255 or int(G) > 255 or int(B) > 255:
+            return None
+        if int(R) < 0 or int(G) < 0 or int(B) < 0:
+            return None
         return (int(R), int(G), int(B))
     else:
         # TODO: usar re.match
@@ -49,9 +55,7 @@ def parseColor(color: str) -> ColorType:
         elif color == 'Blanco':
             return (255, 255, 255)
         else:
-            pass # TODO: Error
-            print("Error: Nombre de color equivocado")
-            exit()
+            return None
 
 
 
