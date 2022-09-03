@@ -13,7 +13,9 @@ from patrones import \
 with open("codigo.txt") as f:
     txt: str = f.read()
 
+
 errores: set[int] = set()
+
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
 verify: re.Match[str]|None = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
@@ -26,12 +28,12 @@ if verify == None: # El codigo no cumple con la estructura necesaria
 
 ancho_elegido: int = int(verify.group('ancho'))
 
-color_elegido_res: util.ColorType|None = util.parseColor(verify.group('bg_color'))
-if color_elegido_res == None:
+f_color_elegido: util.ColorType|None = util.parseColor(verify.group('bg_color'))
+if f_color_elegido == None:
     errores.add(2)
     color_elegido = (0, 0, 0)
 else:
-    color_elegido: util.ColorType = color_elegido_res
+    color_elegido: util.ColorType = f_color_elegido
 
 codigo: str = verify.group('code')
 
@@ -39,21 +41,22 @@ codigo: str = verify.group('code')
 # Agrega espacios antes y despues de los corchetes
 codigo = re.sub(r"{", " { ", codigo)
 codigo = re.sub(r"}", " } ", codigo)
-
 codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo) # Agrega un placeholder para los saltos de linea
 codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 
+
 res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(errores, codigo)
 errores, bytecode = res[0], res[1]
 
-if len(errores) > 0:
-    # TODO: Mover errores a 'errores.txt'
-    for error in errores:
-        print(error, txt.splitlines()[error-1]) # > errores.txt
-    exit()
-print("No hay errores!") # > errores.txt
+
+with open("errores.txt", "w") as f:
+    if len(errores) > 0:
+        for error in errores:
+            f.write("{} {}\n".format(error, txt.splitlines()[error - 1]))
+        exit()
+    f.write("No hay errores!\n")
 
 
 iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]

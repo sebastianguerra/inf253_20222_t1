@@ -43,17 +43,15 @@ def parseColor(color: str) -> ColorType|None:
             return None
         return (int(R), int(G), int(B))
     else:
-        # TODO: usar re.match
-        if color == 'Rojo':
-            return (255, 0, 0)
-        elif color == 'Verde':
-            return (0, 255, 0)
-        elif color == 'Azul':
-            return (0, 0, 255)
-        elif color == 'Negro':
-            return (0, 0, 0)
-        elif color == 'Blanco':
-            return (255, 255, 255)
+        colores = {
+            "Rojo"  : (255,   0,   0),
+            "Verde" : (  0, 255,   0),
+            "Azul"  : (  0,   0, 255),
+            "Negro" : (  0,   0,   0),
+            "Blanco": (255, 255, 255)
+        }
+        if color in colores:
+            return colores[color]
         else:
             return None
 
@@ -154,7 +152,12 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             exit()
             # TODO: Error
         color = color.groups()[0]
-        chosen_color: ColorType = parseColor(color)
+        f_chosen_color: ColorType|None = parseColor(color)
+        if f_chosen_color == None:
+            errores.add(ln)
+            chosen_color: ColorType = (0, 0, 0)
+        else:
+            chosen_color: ColorType = f_chosen_color
         I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha

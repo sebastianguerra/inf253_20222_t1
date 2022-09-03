@@ -2,9 +2,9 @@ Ancho 18
 Color de fondo RGB(200, 100, 150)
 
 Derecha Avanzar 14 Izquierda
-Avanzar 2 Pintar RGB(255,255,0)
+Avanzar 2 Pintar Rojo
 Repetir 3 veces {
-  Izquierda Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar Verde
   Derecha Avanzar Pintar RGB(255,255,0)
 }
 Derecha Avanzar Pintar RGB(255,255,0)
@@ -26,16 +26,16 @@ Avanzar 6 Pintar RGB(255,255,0)
 Avanzar Pintar RGB(255,255,0)
 Repetir 2 veces {
   Derecha Avanzar Pintar RGB(255,255,0)
-  Izquierda Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar Negro
 }
 Izquierda Avanzar Pintar RGB(255,255,0)
 Izquierda Avanzar
-Derecha Avanzar Pintar RGB(255,255,0)
+Derecha Avanzar Pintar Blanco
 Avanzar 2 Repetir 5 veces { Pintar RGB(255,255,0) Avanzar }
 Izquierda Repetir 2 veces {
   Avanzar Pintar RGB(255,255,0)
 }
-Derecha Avanzar Pintar RGB(255,255,0)
+Derecha Avanzar Pintar Azul
 Izquierda Repetir 4 veces {
   Avanzar Pintar RGB(255,255,0)
 }
