@@ -8,13 +8,10 @@ from patrones import \
         bg_color_pattern, \
         newline_placeholder
 
-DEBUG: bool = False
 
 with open("codigo.txt") as f:
     txt: str = f.read()
 
-if DEBUG:
-    print(txt)
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
 verify: re.Match[str]|None = re.match(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
@@ -22,6 +19,7 @@ if verify == None: # El codigo no cumple con la estructura necesaria
     pass # TODO: Encontrar el error y mostrarlo
     print("Error: Codigo mal formado")
     exit()
+
 
 ancho_elegido: int            =             int(verify.group('ancho'))
 color_elegido: util.ColorType = util.parseColor(verify.group('bg_color'))

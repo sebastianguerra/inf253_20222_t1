@@ -53,6 +53,7 @@ def parseColor(color: str) -> ColorType:
             exit()
 
 
+
 def sttmnt_advance(n: int) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         dirList = [(0,1), (1,0), (0,-1), (-1,0)]
@@ -193,6 +194,7 @@ def run(bcode: list[InstructionType], state: StateType, codigo: str = "") -> Sta
     t: list[InstructionType] = bcode[1:]
 
     if h[1] == None:
-        return state
-    else:
-        return run(t, h[1](state), codigo)
+        exit()
+    state2: StateType = h[1](state)
+
+    return run(t, state2, codigo)
