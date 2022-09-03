@@ -12,9 +12,9 @@ DEBUG: bool = False
 
 with open("codigo.txt") as f:
     txt: str = f.read()
+
 if DEBUG:
     print(txt)
-
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
 verify = re.match(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
@@ -23,11 +23,11 @@ if verify == None: # El codigo no cumple con la estructura necesaria
     print("Error: Codigo mal formado")
     exit()
 
-ancho_elegido = int(verify.group('ancho'))
+ancho_elegido: int = int(verify.group('ancho'))
 
-color_elegido = util.parseColor(verify.group('bg_color'))
+color_elegido: tuple[int, int, int] = util.parseColor(verify.group('bg_color'))
 
-codigo = verify.group('code')
+codigo: str = verify.group('code')
 
 codigo = re.sub(r"(?! ){", " {", codigo) # Agrega un espacio antes de {
 codigo = re.sub(r"{(?! )", "{ ", codigo) # Agrega un espacio despues de {
@@ -47,11 +47,14 @@ if DEBUG:
     print(codigo)
     print()
 
-errors, bytecode = util.parseCode(set(), codigo)
+res: tuple[set[int], list[util.InstructionType]] = util.parseCode(set(), codigo)
+errors, bytecode = res[0], res[1]
+
 print(errors)
 if errors != set():
     print("Ocurrio un error")
     exit()
+
 if DEBUG:
     print("Bytecode:")
     print(bytecode)
@@ -73,14 +76,14 @@ if DEBUG:
                 print(i[1], i[2])
     printBytecode(bytecode)
 
-iMatrix = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
-pos = (0,0)
-dir = 0
+iMatrix: list[list[tuple[int, int, int]]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
+pos: tuple[int, int] = (0,0)
+dir: int = 0
 
-state = (iMatrix, pos, dir)
+state: util.stateType = (iMatrix, pos, dir)
 
-state = util.run(bytecode, state, codigo)
+state: util.stateType = util.run(bytecode, state, codigo)
 
-rMatrix = state[0]
+rMatrix: list[list[tuple[int, int, int]]] = state[0]
 createImage.MatrizAImagen(rMatrix)
 
