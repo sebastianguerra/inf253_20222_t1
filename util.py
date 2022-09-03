@@ -50,17 +50,17 @@ def parseCode(txt, code, n=0, iden=0, ln=4):
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
     Devuelve una lista ejecutable
     '''
+    I = [(n, ln), "", []]
     code = re.sub(r"^ ", "", code)
 
 
     if re.match(r"^ *$", code) != None:
-        return []
+        return set(), []
     
     if re.match(r"}", code) != None:
         if iden == 0:
-            print(ln, txt.split('\n')[ln-1]) # TODO: Debe ir a archivo error.txt
-            exit()
-        return []
+            return {ln}, [(n, ln), "E", []]
+        return set(), []
 
     if re.match(newline_placeholder, code)!= None:
         longitud = len(newline_placeholder) + 1
@@ -69,20 +69,21 @@ def parseCode(txt, code, n=0, iden=0, ln=4):
     match = re.match(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
     if match == None:
         print("No coincide: \"" + code + "\"")
-        return []
+        return set(), []
     
     h = match.group('head')
     t = match.group('tail')
     t = re.sub(r"^ ", "", t)
 
-    I = [(n, ln), "", []]
     
     # Repetir <n> veces {}
     if re.match(repetir_statement_pattern, h) != None:
         I[1] = "R"
         cantidad = re.match(repetir_statement_pattern, h)
         I[1] = "R"
-        I[2] = (cantidad.group("repetir_nveces") , parseCode(txt, t, n+1, iden+1, ln))
+        err, result = parseCode(txt, t, n+1, iden+1, ln)
+        txt.update(err)
+        I[2] = (cantidad.group("repetir_nveces") , result)
         m = 1
         while m > 0:
             if re.match(newline_placeholder, t) != None:
@@ -132,7 +133,9 @@ def parseCode(txt, code, n=0, iden=0, ln=4):
         # TODO: Error
         pass
 
-    return [I] + parseCode(txt, t, n+1, iden, ln)
+    err, res = parseCode(txt, t, n+1, iden, ln)
+    txt.update(err)
+    return txt, [I] + res
 
 
 def sttmnt_advance(state, n):

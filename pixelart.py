@@ -47,7 +47,11 @@ if DEBUG:
     print(codigo)
     print()
 
-bytecode = util.parseCode(txt, codigo)
+errors, bytecode = util.parseCode(set(), codigo)
+print(errors)
+if errors != set():
+    print("Ocurrio un error")
+    exit()
 if DEBUG:
     print("Bytecode:")
     print(bytecode)
