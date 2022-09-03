@@ -8,19 +8,17 @@ from patrones import \
         bg_color_pattern, \
         newline_placeholder
 
-DEBUG = True
+DEBUG: bool = False
 
-### Crea la imagen de un Creeper
 with open("codigo.txt") as f:
-    txt = f.read()
+    txt: str = f.read()
 if DEBUG:
     print(txt)
 
 
-# Verify that the code is well formed
-verify = re.compile(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]))
-verify = verify.match(txt)
-if verify == None:
+# Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
+verify = re.match(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
+if verify == None: # El codigo no cumple con la estructura necesaria
     pass # TODO Error
     print("Error: Codigo mal formado")
     exit()
@@ -30,13 +28,14 @@ ancho_elegido = int(verify.group('ancho'))
 color_elegido = util.parseColor(verify.group('bg_color'))
 
 codigo = verify.group('code')
-# Agrega espacios a los lados de los {}
-codigo = re.sub(r"(?! ){", " {", codigo)
-codigo = re.sub(r"{(?! )", "{ ", codigo)
-codigo = re.sub(r"(?! )}", " }", codigo)
-codigo = re.sub(r"}(?! )", "}" , codigo)
-codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo)
-codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina saltos de linea y tabs
+
+codigo = re.sub(r"(?! ){", " {", codigo) # Agrega un espacio antes de {
+codigo = re.sub(r"{(?! )", "{ ", codigo) # Agrega un espacio despues de {
+codigo = re.sub(r"(?! )}", " }", codigo) # Agrega un espacio antes de }
+codigo = re.sub(r"}(?! )", "} " , codigo) # Agrega un espacio despues de }
+
+codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo) # Agrega un placeholder para los saltos de linea
+codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 if DEBUG:
@@ -48,7 +47,7 @@ if DEBUG:
     print(codigo)
     print()
 
-bytecode = util.parseCode(codigo)
+bytecode = util.parseCode(txt, codigo)
 if DEBUG:
     print("Bytecode:")
     print(bytecode)
@@ -70,8 +69,7 @@ if DEBUG:
                 print(i[1], i[2])
     printBytecode(bytecode)
 
-# dirList = [(1,0), (0,1), (-1,0), (0,-1)]
-iMatrix = [[color_elegido for i in range(ancho_elegido)] for j in range(ancho_elegido)]
+iMatrix = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
 pos = (0,0)
 dir = 0
 

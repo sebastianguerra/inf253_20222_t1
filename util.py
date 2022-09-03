@@ -29,7 +29,7 @@ def parseColor(color):
         R, G, B = grupos
         return (int(R), int(G), int(B))
     else:
-        # TODO usar re.match
+        # TODO: usar re.match
         if color == 'Rojo':
             return (255, 0, 0)
         elif color == 'Verde':
@@ -41,29 +41,30 @@ def parseColor(color):
         elif color == 'Blanco':
             return (255, 255, 255)
         else:
-            pass # TODO Error
+            pass # TODO: Error
             print("Error: Nombre de color equivocado")
             exit()
 
-def parseCode(code, n=0, iden=0, ln=4):
+def parseCode(txt, code, n=0, iden=0, ln=4):
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
-    Devuelve una tupla con el estado final
+    Devuelve una lista ejecutable
     '''
     code = re.sub(r"^ ", "", code)
 
 
-    isEmpty = re.match(r"^ *$", code)
-    if isEmpty != None:
+    if re.match(r"^ *$", code) != None:
         return []
     
-    closed = re.match(r"}", code)
-    if closed != None:
+    if re.match(r"}", code) != None:
+        if iden == 0:
+            print(ln, txt.split('\n')[ln-1]) # TODO: Debe ir a archivo error.txt
+            exit()
         return []
 
-    newline = re.match(newline_placeholder, code)
-    if newline != None:
-        return parseCode(code[10:], n, iden, ln+1)
+    if re.match(newline_placeholder, code)!= None:
+        longitud = len(newline_placeholder) + 1
+        return parseCode(txt, code[longitud:], n, iden, ln+1)
 
     match = re.match(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
     if match == None:
@@ -74,14 +75,14 @@ def parseCode(code, n=0, iden=0, ln=4):
     t = match.group('tail')
     t = re.sub(r"^ ", "", t)
 
-    I = [(n, ln), "", []] # TODO Cambiar n por ln
+    I = [(n, ln), "", []]
     
     # Repetir <n> veces {}
     if re.match(repetir_statement_pattern, h) != None:
         I[1] = "R"
         cantidad = re.match(repetir_statement_pattern, h)
         I[1] = "R"
-        I[2] = (cantidad.group("repetir_nveces") , parseCode(t, n+1, iden+1, ln))
+        I[2] = (cantidad.group("repetir_nveces") , parseCode(txt, t, n+1, iden+1, ln))
         m = 1
         while m > 0:
             if re.match(newline_placeholder, t) != None:
@@ -90,6 +91,9 @@ def parseCode(code, n=0, iden=0, ln=4):
             c = t[0]
             if c == "}":
                 m -= 1
+                if m == -1:
+                    print("Error: Cierre de bloque sin apertura")
+                    pass # TODO: Error: Cierre de bloque sin apertura
             elif c == "{":
                 m += 1
             t = t[1:]
@@ -100,7 +104,7 @@ def parseCode(code, n=0, iden=0, ln=4):
         if color == None:
             print("Error: Color no reconocido")
             exit()
-            # TODO Error
+            # TODO: Error
         color = color.groups()[0]
         chosen_color = parseColor(color)
         I[1] = "P"
@@ -125,10 +129,10 @@ def parseCode(code, n=0, iden=0, ln=4):
             I[2] = int(m.group("avanzar_nveces"))
 
     else:
-        # TODO Error
+        # TODO: Error
         pass
 
-    return [I] + parseCode(t, n+1, iden, ln)
+    return [I] + parseCode(txt, t, n+1, iden, ln)
 
 
 def sttmnt_advance(state, n):
