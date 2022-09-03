@@ -4,52 +4,52 @@ Color de fondo Rojo
 Derecha Avanzar 14 Izquierda
 Avanzar 2 Pintar RGB(255,255,0)
 Repetir 3 veces {
-Izquierda Avanzar Pintar RGB(255,255,0)
-Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar RGB(255,255,0)
+  Derecha Avanzar Pintar RGB(255,255,0)
 }
 Derecha Avanzar Pintar RGB(255,255,0)
 Repetir 2 veces {
-Derecha Avanzar Pintar RGB(255,255,0)
-Izquierda Avanzar Pintar RGB(255,255,0)
+  Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar RGB(255,255,0)
 }
 Izquierda Avanzar 3 Izquierda
 Avanzar 2 Izquierda
 Repetir 2 veces {
-Izquierda Avanzar Izquierda
-Repetir 5 veces {
-Pintar RGB(255,255,0) Avanzar
-}
-Pintar RGB(255,255,0)
+  Izquierda Avanzar Izquierda
+  Repetir 5 veces {
+    Pintar RGB(255,255,0) Avanzar
+  }
+  Pintar RGB(255,255,0)
 }
 Repetir 2 veces { Izquierda }
 Avanzar 6 Pintar RGB(255,255,0)
 Avanzar Pintar RGB(255,255,0)
 Repetir 2 veces {
-Derecha Avanzar Pintar RGB(255,255,0)
-Izquierda Avanzar Pintar RGB(255,255,0)
+  Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar RGB(255,255,0)
 }
 Izquierda Avanzar Pintar RGB(255,255,0)
 Izquierda Avanzar
 Derecha Avanzar Pintar RGB(255,255,0)
 Avanzar 2 Repetir 5 veces { Pintar RGB(255,255,0) Avanzar }
 Izquierda Repetir 2 veces {
-Avanzar Pintar RGB(255,255,0)
+  Avanzar Pintar RGB(255,255,0)
 }
 Derecha Avanzar Pintar RGB(255,255,0)
 Izquierda Repetir 4 veces {
-Avanzar Pintar RGB(255,255,0)
+  Avanzar Pintar RGB(255,255,0)
 }
 Repetir 2 veces { Derecha Avanzar }
 Repetir 3 veces { Pintar RGB(255,255,0) Avanzar }
 Avanzar Derecha Avanzar 3
 Repetir 5 veces {
-Pintar RGB(255,255,0) Avanzar
+  Pintar RGB(255,255,0) Avanzar
 }
 Pintar RGB(255,255,0)
 Derecha Repetir 2 veces { Avanzar Pintar RGB(255,255,0) }
 Repetir 3 veces {
-Derecha Avanzar Pintar RGB(255,255,0)
-Izquierda Avanzar Pintar RGB(255,255,0)
+  Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar RGB(255,255,0)
 }
 Avanzar Pintar RGB(255,255,0)
 Izquierda Avanzar
@@ -66,4 +66,4 @@ Repetir 2 veces { Izquierda }
 Avanzar 2 Derecha Avanzar Pintar RGB(255,255,0)
 Avanzar Pintar RGB(255,255,0)
 Izquierda Avanzar Pintar RGB(255,255,0)
-Avanzar Derecha Avanzar Pintar RGB(255,255,0)
+Avanzar Derecha Avanzar} Pintar RGB(255,255,0)
