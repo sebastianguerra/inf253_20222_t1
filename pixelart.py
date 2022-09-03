@@ -84,7 +84,7 @@ iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegi
 pos: tuple[int, int] = (0,0)
 dir: int = 0
 
-initial_state: util.StateType = (iMatrix, pos, dir)
+initial_state: util.StateType = (iMatrix, pos, dir, txt)
 
 
 final_state: util.StateType = reduce(lambda x, y: y[1](x), bytecode, initial_state)

@@ -13,7 +13,7 @@ from patrones import \
 from typing import Callable
 
 ColorType = tuple[int, int, int]
-StateType = tuple[list[list[ColorType]], tuple[int, int], int]
+StateType = tuple[list[list[ColorType]], tuple[int, int], int, str]
 
 InstructionType = tuple[tuple[int, int], Callable[[StateType], StateType]]
 
@@ -55,14 +55,20 @@ def parseColor(color: str) -> ColorType|None:
 
 
 
-def sttmnt_advance(n: int) -> Callable[[StateType], StateType]:
+def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         dirList = [(0,1), (1,0), (0,-1), (-1,0)]
         pos = state[1]
         dir = state[2]
         for _ in range(n):
             pos = (pos[0]+dirList[dir][0], pos[1]+dirList[dir][1])
-        return (state[0], pos, state[2])
+
+        matrix_len = len(state[0])
+        if pos[0] < 0 or pos[0] >= matrix_len or pos[1] < 0 or pos[1] >= matrix_len:
+            print(ln, state[3].splitlines()[ln-1])
+            exit(1)
+
+        return (state[0], pos, state[2], state[3])
     return ret
     
 def sttmnt_rotate(n: int) -> Callable[[StateType], StateType]:
@@ -70,7 +76,7 @@ def sttmnt_rotate(n: int) -> Callable[[StateType], StateType]:
         dir = state[2]
         dir += n
         dir %= 4
-        return (state[0], state[1], dir)
+        return (state[0], state[1], dir, state[3])
     return ret
 
 def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
@@ -78,7 +84,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
         iMatrix = state[0]
         pos = state[1]
         iMatrix[pos[0]][pos[1]] = color
-        return (iMatrix, state[1], state[2])
+        return (iMatrix, state[1], state[2], state[3])
     return ret
 
 def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
@@ -192,7 +198,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             n = 1
         else:
             n = int(m.group("avanzar_nveces"))
-        I_fn = sttmnt_advance(n)
+        I_fn = sttmnt_advance(n, ln)
 
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
