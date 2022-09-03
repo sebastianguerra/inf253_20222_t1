@@ -3,6 +3,7 @@ import re
 
 import createImage
 import util
+from functools import reduce
 from patrones import \
         ancho_pattern, \
         bg_color_pattern, \
@@ -42,10 +43,11 @@ errores, bytecode = res[0], res[1]
 if len(errores) > 0:
     # TODO: Mover errores a 'errores.txt'
     for error in errores:
-        print(error, txt.splitlines()[error-1])
+        print(error, txt.splitlines()[error-1]) # > errores.txt
     exit()
 else:
     print("No hay errores!") # > errores.txt
+
 
 iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
 pos: tuple[int, int] = (0,0)
@@ -53,7 +55,7 @@ dir: int = 0
 
 initial_state: util.StateType = (iMatrix, pos, dir)
 
-final_state: util.StateType = util.run(bytecode, initial_state, codigo)
+final_state: util.StateType = reduce(lambda x, y: y[1](x), bytecode, initial_state)
 
 rMatrix: list[list[util.ColorType]] = final_state[0]
 createImage.MatrizAImagen(rMatrix)

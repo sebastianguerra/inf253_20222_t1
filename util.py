@@ -1,5 +1,6 @@
 import re
 
+from functools import reduce
 from patrones import \
     number_pattern, \
     statements_pattern, \
@@ -14,7 +15,7 @@ from typing import Callable
 ColorType = tuple[int, int, int]
 StateType = tuple[list[list[ColorType]], tuple[int, int], int]
 
-InstructionType = tuple[tuple[int, int], Callable[[StateType], StateType]|None]
+InstructionType = tuple[tuple[int, int], Callable[[StateType], StateType]]
 
 
 def parseColor(color: str) -> ColorType:
@@ -83,7 +84,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
 def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         for _ in range(int(n)):
-            state = run(bcode, state)
+            state = reduce(lambda x, y: y[1](x), bcode, state)
         return state
     return ret
 
@@ -95,7 +96,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     '''
 
     I_data: tuple[int, int] = (n, ln)
-    I_fn: Callable[[StateType], StateType]|None = None
+    I_fn: Callable[[StateType], StateType] = lambda x: x
 
 
     code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
@@ -105,7 +106,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     
     if re.match(r"}", code) != None:
         if iden == 0:
-            return {ln}, [ ((n, ln), None) ]
+            return {ln}, [ ((n, ln), lambda x: x) ]
         return set(), []
 
     if re.match(newline_placeholder, code)!= None:
@@ -179,22 +180,3 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     I: list[InstructionType] = [(I_data, I_fn)]
     return errores, I + res[1]
 
-
-
-
-
-def run(bcode: list[InstructionType], state: StateType, codigo: str = "") -> StateType:
-    '''
-    Ejecuta el codigo en el estado actual
-    '''
-    if bcode == []:
-        return state
-
-    h:      InstructionType  = bcode[0]
-    t: list[InstructionType] = bcode[1:]
-
-    if h[1] == None:
-        exit()
-    state2: StateType = h[1](state)
-
-    return run(t, state2, codigo)
