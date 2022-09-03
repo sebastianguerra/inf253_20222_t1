@@ -9,14 +9,13 @@ from patrones import \
     avanzar_statement_pattern, \
     newline_placeholder
 
-from typing import Literal
+from typing import Callable
 
 ColorType = tuple[int, int, int]
-
-ArgsType = tuple[int, list['InstructionType']] | int | ColorType | None
-InstructionType = tuple[tuple[int, int], Literal["E", "R", "A", "G", "P"], ArgsType]
-
 StateType = tuple[list[list[ColorType]], tuple[int, int], int]
+
+InstructionType = tuple[tuple[int, int], Callable[[StateType], StateType]|None]
+
 
 def parseColor(color: str) -> ColorType:
     '''
@@ -54,6 +53,40 @@ def parseColor(color: str) -> ColorType:
             exit()
 
 
+def sttmnt_advance(n: int) -> Callable[[StateType], StateType]:
+    def ret(state: StateType) -> StateType:
+        dirList = [(0,1), (1,0), (0,-1), (-1,0)]
+        pos = state[1]
+        dir = state[2]
+        for _ in range(n):
+            pos = (pos[0]+dirList[dir][0], pos[1]+dirList[dir][1])
+        return (state[0], pos, state[2])
+    return ret
+    
+def sttmnt_rotate(n: int) -> Callable[[StateType], StateType]:
+    def ret(state: StateType) -> StateType:
+        dir = state[2]
+        dir += n
+        dir %= 4
+        return (state[0], state[1], dir)
+    return ret
+
+def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
+    def ret(state: StateType) -> StateType:
+        iMatrix = state[0]
+        pos = state[1]
+        iMatrix[pos[0]][pos[1]] = color
+        return (iMatrix, state[1], state[2])
+    return ret
+
+def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
+    def ret(state: StateType) -> StateType:
+        for _ in range(int(n)):
+            state = run(bcode, state)
+        return state
+    return ret
+
+
 def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> tuple[set[int], list[InstructionType]]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
@@ -61,8 +94,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     '''
 
     I_data: tuple[int, int] = (n, ln)
-    I_type: str = "E"
-    I_args: ArgsType = None
+    I_fn: Callable[[StateType], StateType]|None = None
 
 
     code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
@@ -72,7 +104,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     
     if re.match(r"}", code) != None:
         if iden == 0:
-            return {ln}, [ ((n, ln), "E", None) ]
+            return {ln}, [ ((n, ln), None) ]
         return set(), []
 
     if re.match(newline_placeholder, code)!= None:
@@ -91,10 +123,9 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     # Repetir <n> veces {}
     repetir_result = re.match(repetir_statement_pattern, h)
     if repetir_result != None:
-        I_type = "R"
         err, result = parseCode(errores, t, n+1, iden+1, ln)
         errores.update(err)
-        I_args = (int(repetir_result.group("repetir_nveces")), result)
+        I_fn = sttmnt_repeat(int(repetir_result.group("repetir_nveces")), result)
         m = 1
         while m > 0:
             if re.match(newline_placeholder, t) != None:
@@ -118,26 +149,25 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             # TODO: Error
         color = color.groups()[0]
         chosen_color: ColorType = parseColor(color)
-        I_type = "P"
-        I_args = chosen_color
+        I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha
     elif re.match(girar_statement_pattern, h) != None:
-        I_type = "G"
+        dir: int = 0
         if re.match(r"Izquierda", h) != None:
-            I_args = -1
+            dir = -1
         elif re.match(r"Derecha", h) != None:
-            I_args = 1
+            dir = 1
+        I_fn = sttmnt_rotate(dir)
 
     # Avanzar <n>
     elif re.match(avanzar_statement_pattern, h) != None:
-        I_type = "A"
-
         m = re.match(r"Avanzar(?P<avanzar_nveces> [1-9][0-9]*)", h)
         if m == None:
-            I_args = 1
+            n = 1
         else:
-            I_args = int(m.group("avanzar_nveces"))
+            n = int(m.group("avanzar_nveces"))
+        I_fn = sttmnt_advance(n)
 
     else:
         # TODO: Error
@@ -145,35 +175,11 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
     errores.update(res[0])
-    I: list[InstructionType] = [(I_data, I_type, I_args)]
+    I: list[InstructionType] = [(I_data, I_fn)]
     return errores, I + res[1]
 
 
 
-def sttmnt_advance(state, n):
-    dirList = [(0,1), (1,0), (0,-1), (-1,0)]
-    pos = state[1]
-    dir = state[2]
-    for _ in range(n):
-        pos = (pos[0]+dirList[dir][0], pos[1]+dirList[dir][1])
-    return (state[0], pos, state[2])
-    
-def sttmnt_rotate(state, n):
-    dir = state[2]
-    dir += n
-    dir %= 4
-    return (state[0], state[1], dir)
-
-def sttmnt_paint(state, color):
-    iMatrix = state[0]
-    pos = state[1]
-    iMatrix[pos[0]][pos[1]] = color
-    return (iMatrix, state[1], state[2])
-
-def sttmnt_repeat(state, n, bcode):
-    for _ in range(int(n)):
-        state = run(bcode, state)
-    return state
 
 
 def run(bcode: list[InstructionType], state: StateType, codigo: str = "") -> StateType:
@@ -186,17 +192,7 @@ def run(bcode: list[InstructionType], state: StateType, codigo: str = "") -> Sta
     h:      InstructionType  = bcode[0]
     t: list[InstructionType] = bcode[1:]
 
-    if h[1] == "A":
-        state2 = sttmnt_advance(state, h[2])
-    elif h[1] == "G":
-        state2 = sttmnt_rotate(state, h[2])
-    elif h[1] == "P":
-        state2 = sttmnt_paint(state, h[2])
-    elif h[1] == "R":
-        state2 = sttmnt_repeat(state, h[2][0], h[2][1])
+    if h[1] == None:
+        return state
     else:
-        print("Error: Instruccion no reconocida")
-        exit()
-
-    return run(t, state2, codigo)
-
+        return run(t, h[1](state), codigo)

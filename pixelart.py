@@ -49,27 +49,6 @@ if len(errores) > 0:
 else:
     print("No hay errores!") # > errores.txt
 
-if DEBUG:
-    print("Bytecode:")
-    print(bytecode)
-    def printBytecode(bytecode, ident=0):
-        for i in bytecode:
-            if i[0][0] < 10:
-                print("0", end="")
-            print(i[0][0], end=' ')
-
-            if i[0][1] < 10:
-                print("0", end="")
-            print(i[0][1], end=' ')
-            if i[1] == "R":
-                print("\t"*ident, end="")
-                print(i[1], i[2][0])
-                printBytecode(i[2][1], ident+1)
-            else:
-                print("\t"*ident, end="")
-                print(i[1], i[2])
-    printBytecode(bytecode)
-
 iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
 pos: tuple[int, int] = (0,0)
 dir: int = 0
