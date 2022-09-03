@@ -22,20 +22,23 @@ verify: re.Match[str]|None = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_c
 if verify == None: # El codigo no cumple con la estructura necesaria
     pass # TODO: Encontrar el error y mostrarlo
     print("Error: Codigo mal formado")
-    exit()
-
-
-
-ancho_elegido: int = int(verify.group('ancho'))
-
-f_color_elegido: util.ColorType|None = util.parseColor(verify.group('bg_color'))
-if f_color_elegido == None:
-    errores.add(2)
+    ancho_elegido = 0
     color_elegido = (0, 0, 0)
+    codigo = txt
 else:
-    color_elegido: util.ColorType = f_color_elegido
+    ancho_elegido: int = int(verify.group('ancho'))
 
-codigo: str = verify.group('code')
+    f_color_elegido: util.ColorType|None = util.parseColor(verify.group('bg_color'))
+    if f_color_elegido == None:
+        errores.add(2)
+        color_elegido = (0, 0, 0)
+    else:
+        color_elegido: util.ColorType = f_color_elegido
+
+    codigo: str = verify.group('code')
+
+
+
 
 
 # Agrega espacios antes y despues de los corchetes

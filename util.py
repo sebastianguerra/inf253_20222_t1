@@ -101,23 +101,39 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
 
-    if re.fullmatch(r" *", code) != None:
-        return set(), []
-    
-    if re.match(r"}", code) != None:
-        if iden == 0:
-            errores.add(ln)
-            return errores, [ ((n, ln), lambda x: x) ]
-        return set(), []
 
-    if re.match(newline_placeholder, code)!= None:
+    # Si solo quedan espacios (caso base)
+    if re.fullmatch(r" *", code) != None:
+        return errores, []
+    
+
+    # Si se encuentra un salto de linea simplemente se continua con la siguiente declaracion
+    if re.match(newline_placeholder, code) != None:
         longitud = len(newline_placeholder) + 1
         return parseCode(errores, code[longitud:], n, iden, ln+1)
 
+
+    if re.match(r"{", code) != None:
+        # Si encuntra un '{' sin antes haber coincidido con la declaracion 'Repetir' significa que es un error
+        # pero se agrega una identacion para que luego no coincida con el '}' en caso de haber
+        errores.add(ln)
+        return parseCode(errores, code[1:], n, iden+1, ln)
+
+    if re.match(r"}", code) != None:
+        # Si encuentra un '}' no estando en un bloque de codigo significa que esta desbalanceado
+        if iden == 0:
+            errores.add(ln)
+            return errores, [ ((n, ln), lambda x: x) ]
+
+        # Si encuentra un '}' y esta en un bloque de codigo, simplemente retorna (caso base)
+        return errores, []
+
+
     match = re.fullmatch(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
-    if match == None: # No es ninguna keyword
+    if match == None: # No coincide con ninguna palabra del lenguaje
         errores.add(ln)
 
+        # Se continua buscando la proxima sentencia para encontrar mas errores
         res: tuple[set[int], list[InstructionType]] = parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
         errores.update(res[0])
         
@@ -141,9 +157,6 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             c = t[0]
             if c == "}":
                 m -= 1
-                if m == -1:
-                    print("Error: Cierre de bloque sin apertura")
-                    pass # TODO: Error: Cierre de bloque sin apertura
             elif c == "{":
                 m += 1
             t = t[1:]
@@ -152,9 +165,8 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     elif re.match(pintar_statement_pattern, h) != None:
         color = re.match(r"^Pintar (.*)$", h)
         if color == None:
-            print("Error: Color no reconocido")
-            exit()
-            # TODO: Error
+            exit() # Nunca entrara aca pero sin esto pyright se queja
+
         color = color.groups()[0]
         f_chosen_color: ColorType|None = parseColor(color)
         if f_chosen_color == None:
@@ -182,9 +194,6 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             n = int(m.group("avanzar_nveces"))
         I_fn = sttmnt_advance(n)
 
-    else:
-        # TODO: Error
-        pass
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
     errores.update(res[0])
