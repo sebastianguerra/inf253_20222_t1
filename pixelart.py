@@ -20,11 +20,29 @@ errores: set[int] = set()
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
 verify: re.Match[str]|None = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
 if verify == None: # El codigo no cumple con la estructura necesaria
-    pass # TODO: Encontrar el error y mostrarlo
-    print("Error: Codigo mal formado")
-    ancho_elegido = 0
-    color_elegido = (0, 0, 0)
-    codigo = txt
+    ancho_res: re.Match[str]|None = re.search(ancho_pattern, txt)
+    if ancho_res == None:
+        errores.add(1)
+        ancho_elegido = 0
+    else:
+        ancho_elegido = int(ancho_res.group("ancho"))
+    codigo = "\n".join(txt.splitlines()[1:])
+
+
+    bg_res = re.search(bg_color_pattern, txt)
+    if bg_res == None:
+        errores.add(2)
+        color_elegido = (0, 0, 0)
+    else:
+        f_color_elegido = util.parseColor(bg_res.group("color"))
+        if f_color_elegido == None:
+            errores.add(2)
+            color_elegido = (0, 0, 0)
+        else:
+            color_elegido = f_color_elegido
+    codigo = "\n".join(txt.splitlines()[2:])
+
+
 else:
     ancho_elegido: int = int(verify.group('ancho'))
 
