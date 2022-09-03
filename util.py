@@ -30,9 +30,7 @@ def parseColor(color: str) -> ColorType|None:
         extract_colors = re.compile(r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pattern))
         extract_colors = extract_colors.match(color)
         if extract_colors == None:
-            pass # TODO: Error
-            print("Error: Color no reconocido")
-            exit()
+            return None
         grupos = extract_colors.groups()
         R, G, B = grupos
         if R == None or G == None or B == None:
@@ -108,7 +106,8 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     
     if re.match(r"}", code) != None:
         if iden == 0:
-            return {ln}, [ ((n, ln), lambda x: x) ]
+            errores.add(ln)
+            return errores, [ ((n, ln), lambda x: x) ]
         return set(), []
 
     if re.match(newline_placeholder, code)!= None:
@@ -116,9 +115,14 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         return parseCode(errores, code[longitud:], n, iden, ln+1)
 
     match = re.fullmatch(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
-    if match == None:
-        print("No coincide: \"" + code + "\"") # TODO: manejar error
-        return set(), [] # TODO: Seguir analizando el resto del codigo
+    if match == None: # No es ninguna keyword
+        errores.add(ln)
+
+        res: tuple[set[int], list[InstructionType]] = parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
+        errores.update(res[0])
+        
+        return errores, res[1]
+
     
     h = match.group('head')
     t = match.group('tail')
