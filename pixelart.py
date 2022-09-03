@@ -39,14 +39,15 @@ codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 
 res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(set(), codigo)
-errors, bytecode = res[0], res[1]
+errores, bytecode = res[0], res[1]
 
-if len(errors) > 0:
-    for error in errors:
+if len(errores) > 0:
+    # TODO: Mover errores a 'errores.txt'
+    for error in errores:
         print(error, txt.splitlines()[error-1])
     exit()
 else:
-    print("No hay errores!")
+    print("No hay errores!") # > errores.txt
 
 if DEBUG:
     print("Bytecode:")
@@ -73,10 +74,10 @@ iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegi
 pos: tuple[int, int] = (0,0)
 dir: int = 0
 
-state: util.StateType = (iMatrix, pos, dir)
+initial_state: util.StateType = (iMatrix, pos, dir)
 
-state: util.StateType = util.run(bytecode, state, codigo)
+final_state: util.StateType = util.run(bytecode, initial_state, codigo)
 
-rMatrix: list[list[util.ColorType]] = state[0]
+rMatrix: list[list[util.ColorType]] = final_state[0]
 createImage.MatrizAImagen(rMatrix)
 

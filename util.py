@@ -9,17 +9,19 @@ from patrones import \
     avanzar_statement_pattern, \
     newline_placeholder
 
-from typing import Literal, Any
+from typing import Literal
 
 ColorType = tuple[int, int, int]
-InstructionType = tuple[tuple[int, int], Literal["E", "R", "A", "G", "P"], Any]
-ArgsType = tuple[int, list[InstructionType]] | int | ColorType
+
+ArgsType = tuple[int, list['InstructionType']] | int | ColorType | None
+InstructionType = tuple[tuple[int, int], Literal["E", "R", "A", "G", "P"], ArgsType]
+
 StateType = tuple[list[list[ColorType]], tuple[int, int], int]
 
 def parseColor(color: str) -> ColorType:
     '''
-    Parsea un color en formato RGB(d, d, d) y devuelve una tupla de enteros.
-    Tambien puede ser 'Rojo', 'Verde', 'Azul', 'Negro' o 'Blanco'
+    Parsea un color en formato RGB(d, d, d) o un color literal y devuelve una tupla de enteros.
+    El color literal puede ser 'Rojo', 'Verde', 'Azul', 'Negro' o 'Blanco'
         Parametros:
                 color (str): Color.
     '''
@@ -51,6 +53,7 @@ def parseColor(color: str) -> ColorType:
             print("Error: Nombre de color equivocado")
             exit()
 
+
 def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> tuple[set[int], list[InstructionType]]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
@@ -59,7 +62,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     I_data: tuple[int, int] = (n, ln)
     I_type: str = "E"
-    I_args: list[Any]|ColorType|tuple[int, list[InstructionType]]|int= []
+    I_args: ArgsType = None
 
 
     code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
@@ -69,7 +72,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     
     if re.match(r"}", code) != None:
         if iden == 0:
-            return {ln}, [ ((n, ln), "E", []) ]
+            return {ln}, [ ((n, ln), "E", None) ]
         return set(), []
 
     if re.match(newline_placeholder, code)!= None:
@@ -142,7 +145,8 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
     errores.update(res[0])
-    return errores, [(I_data, I_type, I_args)] + res[1]
+    I: list[InstructionType] = [(I_data, I_type, I_args)]
+    return errores, I + res[1]
 
 
 
