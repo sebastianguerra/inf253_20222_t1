@@ -1,21 +1,69 @@
-Ancho 8
-Color de fondo RGB(13,181,13)
+Ancho 18
+Color de fondo RGB(200, 100, 150)
 
-Avanzar Derecha Avanzar 2
-Pintar Negro Avanzar
-Repetir 2 veces { Pintar Negro Izquierda Avanzar }
-Pintar Negro
-Derecha Avanzar 3
-Pintar Negro Avanzar
-Repetir 2 veces { Pintar Negro Derecha Avanzar }
-Pintar Negro
-Izquierda Avanzar
-Repetir 3 veces { Avanzar Pintar Negro }
-Derecha Avanzar 3 Derecha
-Repetir 3 veces { Pintar Negro Avanzar }
-Derecha Avanzar
+Derecha Avanzar 14 Izquierda
+Avanzar 2 Pintar Rojo
 Repetir 3 veces {
-  Pintar Negro Avanzar
-  Pintar Negro Derecha Avanzar
-  Derecha Avanzar Derecha Derecha
+  Izquierda Avanzar Pintar Verde
+  Derecha Avanzar Pintar RGB(255,255,0)
 }
+Derecha Avanzar Pintar RGB(255,255,0)
+Repetir 2 veces {
+  Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar RGB(255,255,0)
+}
+Izquierda Avanzar 3 Izquierda
+Avanzar 2 Izquierda
+Repetir 2 veces {
+  Izquierda Avanzar Izquierda
+  Repetir 5 veces {
+    Pintar RGB(255,255,0) Avanzar
+  }
+  Pintar RGB(255,255,0)
+}
+Repetir 2 veces { Izquierda }
+Avanzar 6 Pintar RGB(255,255,0)
+Avanzar Pintar RGB(255,255,0)
+Repetir 2 veces {
+  Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar Negro
+}
+Izquierda Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar
+Derecha Avanzar Pintar Blanco
+Avanzar 2 Repetir 5 veces { Pintar RGB(255,255,0) Avanzar }
+Izquierda Repetir 2 veces {
+  Avanzar Pintar RGB(255,255,0)
+}
+Derecha Avanzar Pintar Azul
+Izquierda Repetir 4 veces {
+  Avanzar Pintar RGB(255,255,0)
+}
+Repetir 2 veces { Derecha Avanzar }
+Repetir 3 veces { Pintar RGB(255,255,0) Avanzar }
+Avanzar Derecha Avanzar 3
+Repetir 5 veces {
+  Pintar RGB(255,255,0) Avanzar
+}
+Pintar RGB(255,255,0)
+Derecha Repetir 2 veces { Avanzar Pintar RGB(255,255,0) }
+Repetir 3 veces {
+  Derecha Avanzar Pintar RGB(255,255,0)
+  Izquierda Avanzar Pintar RGB(255,255,0)
+}
+Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar
+Repetir 2 veces { Pintar RGB(255,255,0) Derecha Avanzar }
+Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+Repetir 2 veces { Derecha Avanzar }
+Pintar RGB(255,255,0) Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Derecha
+Repetir 4 veces { Pintar RGB(255,255,0) Avanzar }
+Repetir 2 veces { Derecha Avanzar }
+Repetir 2 veces { Avanzar Pintar RGB(255,255,0) }
+Repetir 2 veces { Izquierda }
+Avanzar 2 Derecha Avanzar Pintar RGB(255,255,0)
+Avanzar Pintar RGB(255,255,0)
+Izquierda Avanzar Pintar RGB(255,255,0)
+Avanzar Derecha Avanzar Pintar RGB(255,255,0)
