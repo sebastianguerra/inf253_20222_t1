@@ -4,6 +4,7 @@ import re
 import createImage
 import util
 from functools import reduce
+from typing import Optional
 from patrones import \
         ancho_pattern, \
         bg_color_pattern, \
@@ -15,12 +16,14 @@ with open("codigo.txt") as f:
 
 
 errores: set[int] = set()
+f_color_elegido: Optional[util.ColorType] = (0, 0, 0)
+color_elegido: util.ColorType = (0, 0, 0)
 
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
-verify: re.Match[str]|None = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
+verify: Optional[re.Match[str]] = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
 if verify == None: # El codigo no cumple con la estructura necesaria
-    ancho_res: re.Match[str]|None = re.search(ancho_pattern, txt)
+    ancho_res: Optional[re.Match[str]] = re.search(ancho_pattern, txt)
     if ancho_res == None:
         errores.add(1)
         ancho_elegido = 0
@@ -32,12 +35,10 @@ if verify == None: # El codigo no cumple con la estructura necesaria
     bg_res = re.search(bg_color_pattern, txt)
     if bg_res == None:
         errores.add(2)
-        color_elegido = (0, 0, 0)
     else:
         f_color_elegido = util.parseColor(bg_res.group("color"))
         if f_color_elegido == None:
             errores.add(2)
-            color_elegido = (0, 0, 0)
         else:
             color_elegido = f_color_elegido
     codigo = "\n".join(codigo.splitlines()[2:])
@@ -46,12 +47,11 @@ if verify == None: # El codigo no cumple con la estructura necesaria
 else:
     ancho_elegido: int = int(verify.group('ancho'))
 
-    f_color_elegido: util.ColorType|None = util.parseColor(verify.group('bg_color'))
+    f_color_elegido = util.parseColor(verify.group('bg_color'))
     if f_color_elegido == None:
         errores.add(2)
-        color_elegido = (0, 0, 0)
     else:
-        color_elegido: util.ColorType = f_color_elegido
+        color_elegido = f_color_elegido
 
     codigo: str = verify.group('code')
 
@@ -87,7 +87,7 @@ dir: int = 0
 initial_state: util.StateType = (iMatrix, pos, dir, txt)
 
 
-final_state: util.StateType = reduce(lambda x, y: y[1](x), bytecode, initial_state)
+final_state: util.StateType = reduce(lambda s, f: f(s), bytecode, initial_state)
 
 rMatrix: list[list[util.ColorType]] = final_state[0]
 createImage.MatrizAImagen(rMatrix)

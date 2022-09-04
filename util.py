@@ -10,15 +10,15 @@ from patrones import \
     avanzar_statement_pattern, \
     newline_placeholder
 
-from typing import Callable
+from typing import Callable, Optional
 
 ColorType = tuple[int, int, int]
 StateType = tuple[list[list[ColorType]], tuple[int, int], int, str]
 
-InstructionType = tuple[tuple[int, int], Callable[[StateType], StateType]]
+InstructionType = Callable[[StateType], StateType]
 
 
-def parseColor(color: str) -> ColorType|None:
+def parseColor(color: str) -> Optional[ColorType]:
     '''
     Parsea un color en formato RGB(d, d, d) o un color literal y devuelve una tupla de enteros.
     El color literal puede ser 'Rojo', 'Verde', 'Azul', 'Negro' o 'Blanco'
@@ -27,8 +27,7 @@ def parseColor(color: str) -> ColorType|None:
     '''
     esUnColorPredefinido = re.compile(r"(Rojo)|(Verde)|(Azul)|(Negro)|(Blanco)")
     if esUnColorPredefinido.match(color) == None:
-        extract_colors = re.compile(r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pattern))
-        extract_colors = extract_colors.match(color)
+        extract_colors = re.match(r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pattern), color)
         if extract_colors == None:
             return None
         grupos = extract_colors.groups()
@@ -90,7 +89,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
 def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         for _ in range(int(n)):
-            state = reduce(lambda x, y: y[1](x), bcode, state)
+            state = reduce(lambda x, y: y(x), bcode, state)
         return state
     return ret
 
@@ -101,7 +100,6 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     Devuelve una lista ejecutable
     '''
 
-    I_data: tuple[int, int] = (n, ln)
     I_fn: Callable[[StateType], StateType] = lambda x: x
 
 
@@ -129,7 +127,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         # Si encuentra un '}' no estando en un bloque de codigo significa que esta desbalanceado
         if iden == 0:
             errores.add(ln)
-            return errores, [ ((n, ln), lambda x: x) ]
+            return errores, [ lambda x: x ]
 
         # Si encuentra un '}' y esta en un bloque de codigo, simplemente retorna (caso base)
         return errores, []
@@ -156,30 +154,30 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         err, result = parseCode(errores, t, n+1, iden+1, ln)
         errores.update(err)
         I_fn = sttmnt_repeat(int(repetir_result.group("repetir_nveces")), result)
-        m = 1
-        while m > 0:
+        b: int = 1
+        while b > 0:
             if re.match(newline_placeholder, t) != None:
                 ln += 1
             c = t[0]
             if c == "}":
-                m -= 1
+                b -= 1
             elif c == "{":
-                m += 1
+                b += 1
             t = t[1:]
 
     # Pintar <color>
     elif re.match(pintar_statement_pattern, h) != None:
-        color = re.match(r"^Pintar (.*)$", h)
-        if color == None:
+        colorm: Optional[re.Match[str]] = re.match(r"^Pintar (.*)$", h)
+        if colorm == None:
             exit() # Nunca entrara aca pero sin esto pyright se queja
 
-        color = color.groups()[0]
-        f_chosen_color: ColorType|None = parseColor(color)
+        color: str = colorm.groups()[0]
+        f_chosen_color: Optional[ColorType] = parseColor(color)
+        chosen_color: ColorType = (0, 0, 0)
         if f_chosen_color == None:
             errores.add(ln)
-            chosen_color: ColorType = (0, 0, 0)
         else:
-            chosen_color: ColorType = f_chosen_color
+            chosen_color = f_chosen_color
         I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha
@@ -193,7 +191,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     # Avanzar <n>
     elif re.match(avanzar_statement_pattern, h) != None:
-        m = re.match(r"Avanzar(?P<avanzar_nveces> [1-9][0-9]*)", h)
+        m: Optional[re.Match[str]] = re.match(r"Avanzar(?P<avanzar_nveces> [1-9][0-9]*)", h)
         if m == None:
             n = 1
         else:
@@ -203,6 +201,6 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
     errores.update(res[0])
-    I: list[InstructionType] = [(I_data, I_fn)]
+    I: list[InstructionType] = [I_fn]
     return errores, I + res[1]
 
