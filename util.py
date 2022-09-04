@@ -121,9 +121,9 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     if re.match(r"{", code) != None:
         # Si encuntra un '{' sin antes haber coincidido con la declaracion 'Repetir' significa que es un error
-        # pero se agrega una identacion para que luego no coincida con el '}' en caso de haber
+        # pero se agrega una identacion para que luego coincida con el '}' en caso de haber
         errores.add(ln)
-        return parseCode(errores, code[1:], n, iden+1, ln)
+        return parseCode(errores, code[2:], n, iden+1, ln)
 
     if re.match(r"}", code) != None:
         # Si encuentra un '}' no estando en un bloque de codigo significa que esta desbalanceado

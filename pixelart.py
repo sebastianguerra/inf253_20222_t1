@@ -40,7 +40,7 @@ if verify == None: # El codigo no cumple con la estructura necesaria
             color_elegido = (0, 0, 0)
         else:
             color_elegido = f_color_elegido
-    codigo = "\n".join(txt.splitlines()[2:])
+    codigo = "\n".join(codigo.splitlines()[2:])
 
 
 else:
