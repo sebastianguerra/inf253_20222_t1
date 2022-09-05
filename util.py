@@ -164,7 +164,7 @@ def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType],
 
 
 
-def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> tuple[set[int], list[InstructionType]]:
+def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> list[InstructionType]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
     Devuelve una lista ejecutable
@@ -178,7 +178,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     # Si solo quedan espacios (caso base)
     if re.fullmatch(r" *", code) != None:
-        return errores, []
+        return []
     
 
     # Si se encuentra un salto de linea simplemente se continua con la 
@@ -200,10 +200,10 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         # esta desbalanceado
         if iden == 0:
             errores.add(ln)
-            return errores, [ lambda x: x ]
+            return [ lambda x: x ]
 
         # Si encuentra un '}' y esta en un bloque de codigo, simplemente retorna (caso base)
-        return errores, []
+        return []
 
 
     match = re.fullmatch(fr"(?P<head>{statements_pattern}) (?P<tail>{alfabeto}*)", code)
@@ -211,10 +211,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         errores.add(ln)
 
         # Se continua buscando la proxima sentencia para encontrar mas errores
-        res = parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
-        errores.update(res[0])
-        
-        return errores, res[1]
+        return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
 
     
     h = match.group('head')
@@ -231,15 +228,14 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     # Repetir <n> veces {}
     if resultado['repetir'] != None:
-        err, result = parseCode(errores, t, n+1, iden+1, ln)
-        errores.update(err)
+        result = parseCode(errores, t, n+1, iden+1, ln)
         I_fn = sttmnt_repeat(int(resultado['repetir'].group("repetir_nveces")), result)
         b: int = 1
         p: int = ln
         while b > 0:
             if len(t) == 0:
                 errores.add(p)
-                return errores, [ lambda x: x ]
+                return [ lambda x: x ]
 
             if re.match(newline_placeholder, t) != None:
                 ln += 1
@@ -280,10 +276,9 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         I_fn = sttmnt_advance(nveces, ln)
 
 
-    res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
+    res: list[InstructionType] = parseCode(errores, t, n+1, iden, ln)
 
-    errores.update(res[0])
     I: list[InstructionType] = [I_fn]
 
-    return errores, I + res[1]
+    return I + res
 

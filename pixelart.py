@@ -80,7 +80,7 @@ codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 
 
-errores, bytecode = util.parseCode(errores, codigo)
+bytecode = util.parseCode(errores, codigo)
 
 
 
