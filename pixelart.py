@@ -91,8 +91,8 @@ with open("errores.txt", "w") as f:
 initial_state: util.StateType = (
     [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)], # Matriz inicial
     (0,0), # Posicion inicial
-    0, # Direccion [Derecha, Abajo, Izquierda, Arriba]
-    txt # Codigo original para mostrar errores en tiempo de ejecucion
+    0,     # Direccion [Derecha, Abajo, Izquierda, Arriba]
+    txt    # Codigo original para mostrar errores en tiempo de ejecucion
     )
 
 
