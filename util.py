@@ -164,10 +164,21 @@ def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType],
 
 
 
+
 def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> list[InstructionType]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
     Devuelve una lista ejecutable
+
+    Parametros:
+        errores (set[int]): Set de lineas que contienen errores.
+        code (str): Codigo al que se le realizara el parsing.
+        n (int): numero de instrucciones que se han parseado hasta el momento.
+        iden (int): identacion actual.
+        ln (int): linea actual.
+
+    Retorno:
+        list[InstructionType]: Lista de funciones que realizan una transformacion a un estado.
     '''
 
     I_fn: Callable[[StateType], StateType] = lambda x: x # Funcion identidad
@@ -200,7 +211,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         # esta desbalanceado
         if iden == 0:
             errores.add(ln)
-            return [ lambda x: x ]
+            return parseCode(errores, code[2:], n, iden, ln)
 
         # Si encuentra un '}' y esta en un bloque de codigo, simplemente retorna (caso base)
         return []
