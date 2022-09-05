@@ -1,7 +1,7 @@
 # Extract width
 ancho_pattern = r"^Ancho (?P<ancho>\d+)" # Captura el Ancho dado
 n0_number_pattern = r"[1-9](?:0|[1-9])*"
-number_pattern = r"0|"+n0_number_pattern
+number_pattern = fr"0|{n0_number_pattern}"
 
 # Colores
 colores_predefinidos = {
@@ -16,12 +16,12 @@ rgb_pattern = r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pa
 color_pattern = '|'.join([es_un_color_predefinido_pattern, rgb_pattern])
 
 # Background color
-bg_color_pattern = r"Color de fondo (?P<bg_color>{})".format(color_pattern)
+bg_color_pattern = fr"Color de fondo (?P<bg_color>{color_pattern})"
 
 # declaraciones
-avanzar_statement_pattern = r"Avanzar(?P<avanzar_nveces> {n0np})?".format(n0np = n0_number_pattern) # Captura el numero de veces que se avanza
+avanzar_statement_pattern = fr"Avanzar(?P<avanzar_nveces> {n0_number_pattern})?" # Captura el numero de veces que se avanza
 girar_statement_pattern = r"(?P<izq>Izquierda)|(?P<der>Derecha)"
-pintar_statement_pattern = r"Pintar (?P<pintar_color>{})".format(color_pattern)
+pintar_statement_pattern = fr"Pintar (?P<pintar_color>{color_pattern})"
 repetir_statement_pattern = r"Repetir (?P<repetir_nveces>[1-9][0-9]*) veces {"
 
 statements_pattern = "|".join([
