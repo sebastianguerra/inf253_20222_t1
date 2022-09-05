@@ -8,7 +8,8 @@ from typing import Optional
 from patrones import \
         ancho_pattern, \
         bg_color_pattern, \
-        newline_placeholder
+        newline_placeholder, \
+        alfabeto
 
 with open("pixelart.png", "w") as f:
     f.write("a")
@@ -23,7 +24,7 @@ color_elegido: util.ColorType = (0, 0, 0)
 
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
-verify: Optional[re.Match[str]] = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>[a-zA-Z0-9{}(), \n\t]*$)" ]), txt)
+verify: Optional[re.Match[str]] = re.fullmatch(''.join([ ancho_pattern, r" *\n", bg_color_pattern, r" *\n *\n(?P<code>", alfabeto, "*$)" ]), txt)
 if verify == None: # El codigo no cumple con la estructura necesaria
     ancho_res: Optional[re.Match[str]] = re.search(ancho_pattern, txt)
     if ancho_res == None:

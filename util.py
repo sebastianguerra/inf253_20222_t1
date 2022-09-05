@@ -11,7 +11,8 @@ from patrones import \
     newline_placeholder, \
     colores_predefinidos, \
     es_un_color_predefinido_pattern, \
-    rgb_pattern
+    rgb_pattern, \
+    alfabeto
 
 from typing import Callable, Optional
 
@@ -84,7 +85,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     Devuelve una lista ejecutable
     '''
 
-    I_fn: Callable[[StateType], StateType] = lambda x: x
+    I_fn: Callable[[StateType], StateType] = lambda x: x # Funcion identidad
 
 
     code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
@@ -95,20 +96,23 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         return errores, []
     
 
-    # Si se encuentra un salto de linea simplemente se continua con la siguiente declaracion
+    # Si se encuentra un salto de linea simplemente se continua con la 
+    # siguiente declaracion
     if re.match(newline_placeholder, code) != None:
         longitud = len(newline_placeholder) + 1
         return parseCode(errores, code[longitud:], n, iden, ln+1)
 
 
+    # Si encuntra un '{' sin antes haber coincidido con la declaracion 
+    # 'Repetir' significa que es un error, pero se agrega una identacion para 
+    # que luego coincida con el '}' en caso de haber
     if re.match(r"{", code) != None:
-        # Si encuntra un '{' sin antes haber coincidido con la declaracion 'Repetir' significa que es un error
-        # pero se agrega una identacion para que luego coincida con el '}' en caso de haber
         errores.add(ln)
         return parseCode(errores, code[2:], n, iden+1, ln)
 
     if re.match(r"}", code) != None:
-        # Si encuentra un '}' no estando en un bloque de codigo significa que esta desbalanceado
+        # Si encuentra un '}' no estando en un bloque de codigo significa que 
+        # esta desbalanceado
         if iden == 0:
             errores.add(ln)
             return errores, [ lambda x: x ]
@@ -117,12 +121,12 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         return errores, []
 
 
-    match = re.fullmatch(r"(?P<head>{})(?P<tail>[a-zA-Z0-9{},() \n\t]*)".format(statements_pattern, "{}"), code)
+    match = re.fullmatch(r"(?P<head>{}) (?P<tail>{}*)".format(statements_pattern, alfabeto), code)
     if match == None: # No coincide con ninguna palabra del lenguaje
         errores.add(ln)
 
         # Se continua buscando la proxima sentencia para encontrar mas errores
-        res: tuple[set[int], list[InstructionType]] = parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
+        res = parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
         errores.update(res[0])
         
         return errores, res[1]

@@ -34,3 +34,4 @@ statements_pattern = "|".join([
 
 
 newline_placeholder = r"{newline}"
+alfabeto = r"[a-zA-Z0-9{},() \n\t]"
