@@ -127,7 +127,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         return errores, []
 
 
-    match = re.fullmatch(r"(?P<head>{}) (?P<tail>{}*)".format(statements_pattern, alfabeto), code)
+    match = re.fullmatch(fr"(?P<head>{statements_pattern}) (?P<tail>{alfabeto}*)", code)
     if match == None: # No coincide con ninguna palabra del lenguaje
         errores.add(ln)
 

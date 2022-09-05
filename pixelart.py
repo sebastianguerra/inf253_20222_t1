@@ -89,7 +89,7 @@ errores, bytecode = util.parseCode(errores, codigo)
 with open("errores.txt", "w") as f:
     if len(errores) > 0:
         for error in errores:
-            f.write("{} {}\n".format(error, txt.splitlines()[error - 1]))
+            f.write(f"{error} {txt.splitlines()[error - 1]}\n")
         exit()
     f.write("No hay errores!\n")
 
