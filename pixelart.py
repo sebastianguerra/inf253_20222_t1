@@ -25,6 +25,7 @@ errores: set[int] = set()
 f_color_elegido: Optional[util.ColorType] = (0, 0, 0)
 color_elegido: util.ColorType = (0, 0, 0)
 
+ancho_elegido: int = 0
 
 
 # Verifica que el codigo tenga la estructura inicial correcta y extrae directamente los valores
@@ -34,7 +35,6 @@ if verify == None: # El codigo no cumple con la estructura necesaria
     ancho_res: Optional[re.Match[str]] = re.search(ancho_pattern, txt)
     if ancho_res == None:
         errores.add(1)
-        ancho_elegido = 0
     else:
         ancho_elegido = int(ancho_res.group("ancho"))
     codigo = "\n".join(txt.splitlines()[1:])
@@ -49,10 +49,11 @@ if verify == None: # El codigo no cumple con la estructura necesaria
             errores.add(2)
         else:
             color_elegido = f_color_elegido
+
     codigo = "\n".join(codigo.splitlines()[2:])
 
 else:
-    ancho_elegido: int = int(verify.group('ancho'))
+    ancho_elegido = int(verify.group('ancho'))
 
     f_color_elegido = util.parseColor(verify.group('bg_color'))
     if f_color_elegido == None:
@@ -71,7 +72,7 @@ else:
 codigo = re.sub(r"{", " { ", codigo)
 codigo = re.sub(r"}", " } ", codigo)
 
-codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo) # Agrega un placeholder para los saltos de linea
+codigo = re.sub(r"(\n)", f" {newline_placeholder} ", codigo) # Agrega un placeholder para los saltos de linea
 codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
@@ -79,8 +80,7 @@ codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 
 
-res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(errores, codigo)
-errores, bytecode = res[0], res[1]
+errores, bytecode = util.parseCode(errores, codigo)
 
 
 
