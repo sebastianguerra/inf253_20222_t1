@@ -23,7 +23,6 @@ avanzar_statement_pattern = fr"Avanzar(?P<avanzar_nveces> {n0_number_pattern})?"
 girar_statement_pattern = r"(?P<izq>Izquierda)|(?P<der>Derecha)"
 pintar_statement_pattern = fr"Pintar (?P<pintar_color>{color_pattern})"
 repetir_statement_pattern = r"Repetir (?P<repetir_nveces>[1-9][0-9]*) veces {"
-
 statements_pattern = "|".join([
     avanzar_statement_pattern,
     girar_statement_pattern,

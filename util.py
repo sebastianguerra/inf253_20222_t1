@@ -219,10 +219,16 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     match = re.fullmatch(fr"(?P<head>{statements_pattern}) (?P<tail>{alfabeto}*)", code)
     if match == None: # No coincide con ninguna palabra del lenguaje
-        errores.add(ln)
 
         # Se continua buscando la proxima sentencia para encontrar mas errores
-        return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
+        match_ampliado = re.fullmatch(f"{statements_pattern} (?P<tail>.*)", code)
+        if match_ampliado == None: 
+            errores.add(ln)
+            return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
+        else:
+            t: str = match_ampliado.group("tail")
+            return parseCode(errores, t, n, iden, ln)
+
 
     
     h = match.group('head')

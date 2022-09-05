@@ -44,7 +44,7 @@ if verify == None: # El codigo no cumple con la estructura necesaria
     if bg_res == None:
         errores.add(2)
     else:
-        f_color_elegido = util.parseColor(bg_res.group("color"))
+        f_color_elegido = util.parseColor(bg_res.group("bg_color"))
         if f_color_elegido == None:
             errores.add(2)
         else:
