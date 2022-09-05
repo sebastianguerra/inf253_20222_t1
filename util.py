@@ -8,7 +8,10 @@ from patrones import \
     pintar_statement_pattern, \
     girar_statement_pattern, \
     avanzar_statement_pattern, \
-    newline_placeholder
+    newline_placeholder, \
+    colores_predefinidos, \
+    es_un_color_predefinido_pattern, \
+    rgb_pattern
 
 from typing import Callable, Optional
 
@@ -25,33 +28,21 @@ def parseColor(color: str) -> Optional[ColorType]:
         Parametros:
                 color (str): Color.
     '''
-    esUnColorPredefinido = re.compile(r"(Rojo)|(Verde)|(Azul)|(Negro)|(Blanco)")
-    if esUnColorPredefinido.match(color) == None:
-        extract_colors = re.match(r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pattern), color)
+    if re.fullmatch(es_un_color_predefinido_pattern, color) != None:
+        return colores_predefinidos[color] if color in colores_predefinidos else None
+    else:
+        extract_colors = re.fullmatch(rgb_pattern, color)
         if extract_colors == None:
             return None
         grupos = extract_colors.groups()
         R, G, B = grupos
-        if R == None or G == None or B == None:
+        if None in (R, G, B):
             return None
         if int(R) > 255 or int(G) > 255 or int(B) > 255:
             return None
         if int(R) < 0 or int(G) < 0 or int(B) < 0:
             return None
         return (int(R), int(G), int(B))
-    else:
-        colores = {
-            "Rojo"  : (255,   0,   0),
-            "Verde" : (  0, 255,   0),
-            "Azul"  : (  0,   0, 255),
-            "Negro" : (  0,   0,   0),
-            "Blanco": (255, 255, 255)
-        }
-        if color in colores:
-            return colores[color]
-        else:
-            return None
-
 
 
 def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:

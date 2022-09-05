@@ -10,6 +10,8 @@ from patrones import \
         bg_color_pattern, \
         newline_placeholder
 
+with open("pixelart.png", "w") as f:
+    f.write("a")
 
 with open("codigo.txt") as f:
     txt: str = f.read()
@@ -90,5 +92,6 @@ initial_state: util.StateType = (iMatrix, pos, dir, txt)
 final_state: util.StateType = reduce(lambda s, f: f(s), bytecode, initial_state)
 
 rMatrix: list[list[util.ColorType]] = final_state[0]
-createImage.MatrizAImagen(rMatrix)
 
+print(rMatrix)
+createImage.MatrizAImagen(rMatrix)
