@@ -63,9 +63,9 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
 def sttmnt_rotate(n: int) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         dir = state[2]
-        ndir = ( dir + n ) % 4
-
-        return (state[0], state[1], ndir, state[3])
+        dir += n
+        dir %= 4
+        return (state[0], state[1], dir, state[3])
     return ret
 
 def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
@@ -79,7 +79,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
 def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         for _ in range(n):
-            state = reduce(lambda x, y: y(x), bcode, state)
+            state = reduce(lambda s, f: f(s), bcode, state)
         return state
     return ret
 
