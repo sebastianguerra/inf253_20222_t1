@@ -135,13 +135,18 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     h = match.group('head')
     t = match.group('tail')
 
-    
+
+    repetir_resultado = re.match(repetir_statement_pattern, h)
+    pintar_resultado = re.match(pintar_statement_pattern, h)
+    girar_resultado = re.match(girar_statement_pattern, h)
+    avanzar_resultado = re.match(avanzar_statement_pattern, h)
+
+
     # Repetir <n> veces {}
-    repetir_result = re.match(repetir_statement_pattern, h)
-    if repetir_result != None:
+    if repetir_resultado != None:
         err, result = parseCode(errores, t, n+1, iden+1, ln)
         errores.update(err)
-        I_fn = sttmnt_repeat(int(repetir_result.group("repetir_nveces")), result)
+        I_fn = sttmnt_repeat(int(repetir_resultado.group("repetir_nveces")), result)
         b: int = 1
         while b > 0:
             if re.match(newline_placeholder, t) != None:
@@ -154,41 +159,41 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             t = t[1:]
 
     # Pintar <color>
-    elif re.match(pintar_statement_pattern, h) != None:
-        colorm: Optional[re.Match[str]] = re.match(r"^Pintar (.*)$", h)
-        if colorm == None:
-            exit() # Nunca entrara aca pero sin esto pyright se queja
+    elif pintar_resultado != None:
+        color: str = pintar_resultado.group('pintar_color')
 
-        color: str = colorm.groups()[0]
         f_chosen_color: Optional[ColorType] = parseColor(color)
+
         chosen_color: ColorType = (0, 0, 0)
         if f_chosen_color == None:
             errores.add(ln)
         else:
             chosen_color = f_chosen_color
+
         I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha
-    elif re.match(girar_statement_pattern, h) != None:
+    elif girar_resultado != None:
         dir: int = 0
-        if re.match(r"Izquierda", h) != None:
+        if girar_resultado.group('izq') != None:
             dir = -1
-        elif re.match(r"Derecha", h) != None:
+        elif girar_resultado.group('der') != None:
             dir = 1
         I_fn = sttmnt_rotate(dir)
 
     # Avanzar <n>
-    elif re.match(avanzar_statement_pattern, h) != None:
-        m: Optional[re.Match[str]] = re.match(r"Avanzar(?P<avanzar_nveces> [1-9][0-9]*)", h)
-        if m == None:
-            n = 1
-        else:
-            n = int(m.group("avanzar_nveces"))
+    elif avanzar_resultado != None:
+        m: Optional[str] = avanzar_resultado.group('avanzar_nveces')
+        n: int = 1
+        if m != None:
+            n = int(m)
         I_fn = sttmnt_advance(n, ln)
 
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)
+
     errores.update(res[0])
     I: list[InstructionType] = [I_fn]
+
     return errores, I + res[1]
 
