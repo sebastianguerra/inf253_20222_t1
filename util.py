@@ -1,6 +1,6 @@
 import re
-
 from functools import reduce
+
 from patrones import \
     statements_pattern, \
     repetir_statement_pattern, \
@@ -44,13 +44,16 @@ def parseColor(color: str) -> Optional[ColorType]:
 def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         dirList = [(0,1), (1,0), (0,-1), (-1,0)]
-        pos = state[1]
-        dir = state[2]
-        for _ in range(n):
-            pos = (pos[0]+dirList[dir][0], pos[1]+dirList[dir][1])
+        pos: tuple[int, int] = state[1]
+        dir: tuple[int, int] = dirList[state[2]]
+
+        pos = (
+            pos[0]+dir[0]*n,
+            pos[1]+dir[1]*n
+        )
 
         matrix_len = len(state[0])
-        if pos[0] < 0 or pos[0] >= matrix_len or pos[1] < 0 or pos[1] >= matrix_len:
+        if max(pos) >= matrix_len or min(pos) < 0:
             print(ln, state[3].splitlines()[ln-1])
             exit(1)
 
@@ -60,22 +63,22 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
 def sttmnt_rotate(n: int) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
         dir = state[2]
-        dir += n
-        dir %= 4
-        return (state[0], state[1], dir, state[3])
+        ndir = ( dir + n ) % 4
+
+        return (state[0], state[1], ndir, state[3])
     return ret
 
 def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
-        iMatrix = state[0]
-        pos = state[1]
-        iMatrix[pos[0]][pos[1]] = color
+        iMatrix = state[0] # Matriz
+        x, y = state[1]    # Posicion
+        iMatrix[x][y] = color
         return (iMatrix, state[1], state[2], state[3])
     return ret
 
 def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     def ret(state: StateType) -> StateType:
-        for _ in range(int(n)):
+        for _ in range(n):
             state = reduce(lambda x, y: y(x), bcode, state)
         return state
     return ret
