@@ -9,7 +9,7 @@ Repetir 3 veces {
 }
 Derecha Avanzar Pintar RGB(255,255,0)
 Repetir 2 veces {
-  Derecha Avanzar Pintar RGB(255,255,0)
+  Derecha Avanzar Pintar Azul
   Izquierda Avanzar Pintar RGB(255,255,0)
 }
 Izquierda Avanzar 3 Izquierda
@@ -25,7 +25,7 @@ Repetir 2 veces { Izquierda }
 Avanzar 6 Pintar RGB(255,255,0)
 Avanzar Pintar RGB(255,255,0)
 Repetir 2 veces {
-  Derecha Avanzar Pintar RGB(255,255,0)
+  Derecha Avanzar Pintar Verde
   Izquierda Avanzar Pintar Negro
 }
 Izquierda Avanzar Pintar RGB(255,255,0)

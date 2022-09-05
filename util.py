@@ -2,7 +2,6 @@ import re
 
 from functools import reduce
 from patrones import \
-    number_pattern, \
     statements_pattern, \
     repetir_statement_pattern, \
     pintar_statement_pattern, \
@@ -37,6 +36,9 @@ def parseColor(color: str) -> Optional[ColorType]:
             return None
         RGB: ColorType = tuple(map(int, extract_colors.groups()))
         return RGB if all(map(lambda x: 0 <= x <= 255, RGB)) else None
+
+
+
 
 
 def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
@@ -77,6 +79,7 @@ def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType],
             state = reduce(lambda x, y: y(x), bcode, state)
         return state
     return ret
+
 
 
 def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> tuple[set[int], list[InstructionType]]:
@@ -137,8 +140,8 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
 
     repetir_resultado = re.match(repetir_statement_pattern, h)
-    pintar_resultado = re.match(pintar_statement_pattern, h)
-    girar_resultado = re.match(girar_statement_pattern, h)
+    pintar_resultado  = re.match(pintar_statement_pattern , h)
+    girar_resultado   = re.match(girar_statement_pattern  , h)
     avanzar_resultado = re.match(avanzar_statement_pattern, h)
 
 
@@ -151,6 +154,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         while b > 0:
             if re.match(newline_placeholder, t) != None:
                 ln += 1
+                t = t[len(newline_placeholder)+1:]
             c = t[0]
             if c == "}":
                 b -= 1
@@ -184,10 +188,10 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     # Avanzar <n>
     elif avanzar_resultado != None:
         m: Optional[str] = avanzar_resultado.group('avanzar_nveces')
-        n: int = 1
+        nveces: int = 1
         if m != None:
-            n = int(m)
-        I_fn = sttmnt_advance(n, ln)
+            nveces = int(m)
+        I_fn = sttmnt_advance(nveces, ln)
 
 
     res: tuple[set[int], list[InstructionType]] = parseCode(errores, t, n+1, iden, ln)

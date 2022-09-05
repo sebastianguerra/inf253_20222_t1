@@ -11,7 +11,6 @@ colores_predefinidos = {
     "Negro" : (  0,   0,   0),
     "Blanco": (255, 255, 255)
 }
-## Patron para detectar si es un color predefinido
 es_un_color_predefinido_pattern = "|".join(colores_predefinidos.keys())
 rgb_pattern = r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(np = number_pattern)
 color_pattern = '|'.join([es_un_color_predefinido_pattern, rgb_pattern])
