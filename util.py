@@ -34,15 +34,8 @@ def parseColor(color: str) -> Optional[ColorType]:
         extract_colors = re.fullmatch(rgb_pattern, color)
         if extract_colors == None:
             return None
-        grupos = extract_colors.groups()
-        R, G, B = grupos
-        if None in (R, G, B):
-            return None
-        if int(R) > 255 or int(G) > 255 or int(B) > 255:
-            return None
-        if int(R) < 0 or int(G) < 0 or int(B) < 0:
-            return None
-        return (int(R), int(G), int(B))
+        RGB: ColorType = tuple(map(int, extract_colors.groups()))
+        return RGB if all(map(lambda x: 0 <= x <= 255, RGB)) else None
 
 
 def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
