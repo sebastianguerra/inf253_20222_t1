@@ -64,14 +64,18 @@ else:
 # Agrega espacios antes y despues de los corchetes
 codigo = re.sub(r"{", " { ", codigo)
 codigo = re.sub(r"}", " } ", codigo)
+
 codigo = re.sub(r"(\n)", " {} ".format(newline_placeholder), codigo) # Agrega un placeholder para los saltos de linea
 codigo = re.sub(r"(\t)+", r" ", codigo) # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo) # Elimina espacios repetidos
 
 
 
+
 res: tuple[ set[int], list[util.InstructionType] ] = util.parseCode(errores, codigo)
 errores, bytecode = res[0], res[1]
+
+
 
 
 with open("errores.txt", "w") as f:
@@ -82,11 +86,13 @@ with open("errores.txt", "w") as f:
     f.write("No hay errores!\n")
 
 
-iMatrix: list[list[util.ColorType]] = [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)]
-pos: tuple[int, int] = (0,0)
-dir: int = 0
 
-initial_state: util.StateType = (iMatrix, pos, dir, txt)
+initial_state: util.StateType = (
+    [[color_elegido for _ in range(ancho_elegido)] for _ in range(ancho_elegido)], # Matriz inicial
+    (0,0), # Posicion inicial
+    0, # Direccion [Derecha, Abajo, Izquierda, Arriba]
+    txt # Codigo original para mostrar errores en tiempo de ejecucion
+    )
 
 
 final_state: util.StateType = reduce(lambda s, f: f(s), bytecode, initial_state)
