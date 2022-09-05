@@ -221,17 +221,19 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     t = match.group('tail')
 
 
-    repetir_resultado = re.match(repetir_statement_pattern, h)
-    pintar_resultado  = re.match(pintar_statement_pattern , h)
-    girar_resultado   = re.match(girar_statement_pattern  , h)
-    avanzar_resultado = re.match(avanzar_statement_pattern, h)
+    resultado = {
+        'repetir': re.match(repetir_statement_pattern, h),
+        'pintar':  re.match(pintar_statement_pattern , h),
+        'girar':   re.match(girar_statement_pattern  , h),
+        'avanzar': re.match(avanzar_statement_pattern, h)
+        }
 
 
     # Repetir <n> veces {}
-    if repetir_resultado != None:
+    if resultado['repetir'] != None:
         err, result = parseCode(errores, t, n+1, iden+1, ln)
         errores.update(err)
-        I_fn = sttmnt_repeat(int(repetir_resultado.group("repetir_nveces")), result)
+        I_fn = sttmnt_repeat(int(resultado['repetir'].group("repetir_nveces")), result)
         b: int = 1
         p: int = ln
         while b > 0:
@@ -251,8 +253,8 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             t = t[1:]
 
     # Pintar <color>
-    elif pintar_resultado != None:
-        f_chosen_color: Optional[ColorType] = parseColor(pintar_resultado.group("pintar_color"))
+    elif resultado['pintar'] != None:
+        f_chosen_color: Optional[ColorType] = parseColor(resultado['pintar'].group("pintar_color"))
 
         chosen_color: ColorType = (0, 0, 0)
         if f_chosen_color == None:
@@ -263,15 +265,15 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha
-    elif girar_resultado != None:
-        if girar_resultado.group('izq') != None:
+    elif resultado['girar']!= None:
+        if resultado['girar'].group('izq') != None:
             I_fn = sttmnt_rotate(-1)
-        elif girar_resultado.group('der') != None:
+        elif resultado['girar'].group('der') != None:
             I_fn = sttmnt_rotate(1)
 
     # Avanzar <n>
-    elif avanzar_resultado != None:
-        m: Optional[str] = avanzar_resultado.group('avanzar_nveces')
+    elif resultado['avanzar'] != None:
+        m: Optional[str] = resultado['avanzar'].group('avanzar_nveces')
         nveces: int = 1
         if m != None:
             nveces = int(m)
