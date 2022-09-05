@@ -13,7 +13,7 @@ from patrones import \
     rgb_pattern, \
     alfabeto
 
-from typing import Callable, Optional
+from typing import Callable, Optional, Literal
 
 ColorType = tuple[int, int, int]
 StateType = tuple[list[list[ColorType]], tuple[int, int], int, str]
@@ -25,8 +25,13 @@ def parseColor(color: str) -> Optional[ColorType]:
     '''
     Parsea un color en formato RGB(d, d, d) o un color literal y devuelve una tupla de enteros.
     El color literal puede ser 'Rojo', 'Verde', 'Azul', 'Negro' o 'Blanco'
+
         Parametros:
-                color (str): Color.
+            color (str): string del color, puede ser un literal o un RGB con su tupla.
+
+        Retorno:
+            Optional[ColorType]: Devuelve una tupla de enteros en caso de ser un color valido, en otro caso devuelve None
+
     '''
     if re.fullmatch(es_un_color_predefinido_pattern, color) != None:
         return colores_predefinidos[color] if color in colores_predefinidos else None
@@ -42,7 +47,26 @@ def parseColor(color: str) -> Optional[ColorType]:
 
 
 def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
+    '''
+    Retorna una funcion que modifica un estado avanzando n pasos en la direccion actual.
+
+    Parametros:
+        n (int): Cantidad de pasos a avanzar
+        ln (int): Linea en la que se encuentra la declaracion
+
+    Retorno:
+        Callable[[StateType], StateType]: Funcion que modifica un estado avanzando n pasos en la direccion actual.
+    '''
     def ret(state: StateType) -> StateType:
+        '''
+        Avanza n pasos en la direccion actual, si se sale de la matriz, lo muestra por pantalla y termina el programa.
+
+        Parametros:
+            state (StateType): Tupla con la matriz, la posicion, la direccion y el codigo.
+
+        Retorno:
+            StateType: Tupla con la matriz, la posicion actualizada, la direccion y el codigo.
+        '''
         dirList = [(0,1), (1,0), (0,-1), (-1,0)]
         pos: tuple[int, int] = state[1]
         dir: tuple[int, int] = dirList[state[2]]
@@ -60,16 +84,52 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
         return (state[0], pos, state[2], state[3])
     return ret
     
-def sttmnt_rotate(n: int) -> Callable[[StateType], StateType]:
+def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
+    '''
+    Retorna una funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
+
+    Parametros:
+        n (int): 1 para derecha, -1 para izquierda.
+
+    Retorno:
+        Callable[[StateType], StateType]: Funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
+    '''
     def ret(state: StateType) -> StateType:
+        '''
+        Rota a la derecha (1) o a la izquierda (-1).
+
+        Parametros:
+            state (StateType): Tupla con la matriz, la posicion, la direccion y el codigo.
+
+        Retorno:
+            StateType: Tupla con la matriz, la posicion, la direccion actualizada y el codigo.
+        '''
         dir = state[2]
-        dir += n
+        dir += n # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la lista de direcciones)
         dir %= 4
         return (state[0], state[1], dir, state[3])
     return ret
 
 def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
+    '''
+    Retorna una funcion que modifica un estado pintando el bloque actual con el color dado.
+
+    Parametros:
+        color (ColorType): Color a pintar.
+
+    Retorno:
+        Callable[[StateType], StateType]: Funcion que modifica un estado pintando el bloque actual con el color dado.
+    '''
     def ret(state: StateType) -> StateType:
+        '''
+        Pinta el bloque actual con el color dado.
+
+        Parametros:
+            state (StateType): Tupla con la matriz, la posicion, la direccion y el codigo.
+
+        Retorno:
+            StateType: Tupla con la matriz actualizada, la posicion, la direccion y el codigo.
+        '''
         iMatrix = state[0] # Matriz
         x, y = state[1]    # Posicion
         iMatrix[x][y] = color
@@ -77,7 +137,26 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
     return ret
 
 def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
+    '''
+    Retorna una funcion que modifica un estado repitiendo n veces el codigo dado.
+
+    Parametros:
+        n (int): Cantidad de veces a repetir el codigo.
+        bcode (list[InstructionType]): Codigo a repetir.
+
+    Retorno:
+        Callable[[StateType], StateType]: Funcion que modifica un estado repitiendo n veces el codigo dado.
+    '''
     def ret(state: StateType) -> StateType:
+        '''
+        Repite n veces el codigo dado.
+
+        Parametros:
+            state (StateType): Tupla con la matriz, la posicion, la direccion y el codigo.
+
+        Retorno:
+            StateType: Estado nuevo luego de aplicar n veces las transformaciones.
+        '''
         for _ in range(n):
             state = reduce(lambda s, f: f(s), bcode, state)
         return state
@@ -154,10 +233,16 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         errores.update(err)
         I_fn = sttmnt_repeat(int(repetir_resultado.group("repetir_nveces")), result)
         b: int = 1
+        p: int = ln
         while b > 0:
+            if len(t) == 0:
+                errores.add(p)
+                return errores, [ lambda x: x ]
+
             if re.match(newline_placeholder, t) != None:
                 ln += 1
-                t = t[len(newline_placeholder)+1:]
+                t = t[len(newline_placeholder):]
+
             c = t[0]
             if c == "}":
                 b -= 1
@@ -167,9 +252,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     # Pintar <color>
     elif pintar_resultado != None:
-        color: str = pintar_resultado.group('pintar_color')
-
-        f_chosen_color: Optional[ColorType] = parseColor(color)
+        f_chosen_color: Optional[ColorType] = parseColor(pintar_resultado.group("pintar_color"))
 
         chosen_color: ColorType = (0, 0, 0)
         if f_chosen_color == None:
@@ -181,12 +264,10 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
     # Rotar Izquierda|Derecha
     elif girar_resultado != None:
-        dir: int = 0
         if girar_resultado.group('izq') != None:
-            dir = -1
+            I_fn = sttmnt_rotate(-1)
         elif girar_resultado.group('der') != None:
-            dir = 1
-        I_fn = sttmnt_rotate(dir)
+            I_fn = sttmnt_rotate(1)
 
     # Avanzar <n>
     elif avanzar_resultado != None:

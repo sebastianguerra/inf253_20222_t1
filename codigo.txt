@@ -45,7 +45,7 @@ Avanzar Derecha Avanzar 3
 Repetir 5 veces {
   Pintar RGB(255,255,0) Avanzar
 }
-Pintar RGB(255,255,0)
+Pintar Negro
 Derecha Repetir 2 veces { Avanzar Pintar RGB(255,255,0) }
 Repetir 3 veces {
   Derecha Avanzar Pintar RGB(255,255,0)

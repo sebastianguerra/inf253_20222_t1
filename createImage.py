@@ -24,7 +24,7 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     N = np.shape(matriz)[0]
 
     img = Image.fromarray(matriz, 'RGB')
-    img = img.resize((N*10, N*10), Image.Resampling.BOX)
+    img = img.resize((N*factor, N*factor), Image.Resampling.BOX)
     img.save(filename)
 
 # MatrizAImagen(data)
