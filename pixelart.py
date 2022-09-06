@@ -11,13 +11,11 @@ from patrones import \
     newline_placeholder, \
     alfabeto
 
-
 with open("pixelart.png", "w") as f:
     f.write("a")
 
 with open("codigo.txt") as f:
     txt: str = f.read()
-
 
 errores: set[int] = set()
 
@@ -26,11 +24,11 @@ color_elegido: util.ColorType = (0, 0, 0)
 
 ancho_elegido: int = 0
 
-
 # Verifica que el codigo tenga la estructura inicial correcta y extrae
 # directamente los valores
 verify: Optional[re.Match[str]] = re.fullmatch(
-    fr"{ancho_pattern} *\n{bg_color_pattern} *\n *\n(?P<code>{alfabeto}*$)", txt)
+    fr"{ancho_pattern} *\n{bg_color_pattern} *\n *\n(?P<code>{alfabeto}*$)",
+    txt)
 
 if verify is None:  # El codigo no cumple con la estructura necesaria
     ancho_res: Optional[re.Match[str]] = re.search(ancho_pattern, txt)
@@ -67,7 +65,6 @@ else:
 
     codigo: str = verify.group('code')
 
-
 # Agrega espacios antes y despues de los corchetes
 codigo = re.sub(r"{", " { ", codigo)
 codigo = re.sub(r"}", " } ", codigo)
@@ -77,9 +74,7 @@ codigo = re.sub(r"(\n)", f" {newline_placeholder} ", codigo)
 codigo = re.sub(r"(\t)+", r" ", codigo)  # Elimina tabs
 codigo = re.sub(r"( )+", r" ", codigo)  # Elimina espacios repetidos
 
-
 bytecode = util.parseCode(errores, codigo)
-
 
 with open("errores.txt", "w") as f:
     if len(errores) > 0:
@@ -88,19 +83,16 @@ with open("errores.txt", "w") as f:
         exit()
     f.write("No hay errores!\n")
 
-
 initial_state: util.StateType = (
     [[color_elegido for _ in range(ancho_elegido)]
      for _ in range(ancho_elegido)],  # Matriz inicial
     (0, 0),  # Posicion inicial
-    0,     # Direccion [Derecha, Abajo, Izquierda, Arriba]
-    txt    # Codigo original para mostrar errores en tiempo de ejecucion
+    0,  # Direccion [Derecha, Abajo, Izquierda, Arriba]
+    txt  # Codigo original para mostrar errores en tiempo de ejecucion
 )
 
-
-final_state: util.StateType = reduce(
-    lambda s, f: f(s), bytecode, initial_state)
-
+final_state: util.StateType = reduce(lambda s, f: f(s), bytecode,
+                                     initial_state)
 
 rMatrix: list[list[util.ColorType]] = final_state[0]
 print(rMatrix)

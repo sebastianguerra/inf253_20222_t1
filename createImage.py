@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
-import numpy as np # pip install numpy
-from PIL import Image # pip install Pllow
+import numpy as np  # pip install numpy
+from PIL import Image  # pip install Pllow
 
 # data = [
 #     [(255, 255, 255), (0, 0, 0), (0, 0  , 255)],
 #     [(0  , 0  , 0  ), (0, 0, 0), (0, 0  , 0  )],
-#     [(255, 255, 255), (0, 0, 0), (0, 255, 0  )],  
+#     [(255, 255, 255), (0, 0, 0), (0, 255, 0  )],
 # ]
+
 
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
@@ -24,7 +25,8 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     N = np.shape(matriz)[0]
 
     img = Image.fromarray(matriz, 'RGB')
-    img = img.resize((N*factor, N*factor), Image.Resampling.BOX)
+    img = img.resize((N * factor, N * factor), Image.Resampling.BOX)
     img.save(filename)
+
 
 # MatrizAImagen(data)

@@ -34,7 +34,8 @@ def parseColor(color: str) -> Optional[ColorType]:
 
     '''
     if re.fullmatch(es_un_color_predefinido_pattern, color) is not None:
-        return colores_predefinidos[color] if color in colores_predefinidos else None
+        return colores_predefinidos[
+            color] if color in colores_predefinidos else None
     else:
         extract_colors = re.fullmatch(rgb_pattern, color)
 
@@ -56,6 +57,7 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
     Retorno:
         Callable[[StateType], StateType]: Funcion que modifica un estado avanzando n pasos en la direccion actual.
     '''
+
     def ret(state: StateType) -> StateType:
         '''
         Avanza n pasos en la direccion actual, si se sale de la matriz, lo muestra por pantalla y termina el programa.
@@ -70,10 +72,7 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
         pos: tuple[int, int] = state[1]
         dir: tuple[int, int] = dirList[state[2]]
 
-        pos = (
-            pos[0] + dir[0] * n,
-            pos[1] + dir[1] * n
-        )
+        pos = (pos[0] + dir[0] * n, pos[1] + dir[1] * n)
 
         matrix_len = len(state[0])
         if max(pos) >= matrix_len or min(pos) < 0:
@@ -81,6 +80,7 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
             exit(1)
 
         return (state[0], pos, state[2], state[3])
+
     return ret
 
 
@@ -94,6 +94,7 @@ def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
     Retorno:
         Callable[[StateType], StateType]: Funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
     '''
+
     def ret(state: StateType) -> StateType:
         '''
         Rota a la derecha (1) o a la izquierda (-1).
@@ -106,11 +107,12 @@ def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
         '''
         dir = state[2]
 
-        dir += n    # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la
-                    # lista de direcciones)
+        dir += n  # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la
+        # lista de direcciones)
 
         dir %= 4
         return (state[0], state[1], dir, state[3])
+
     return ret
 
 
@@ -124,6 +126,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
     Retorno:
         Callable[[StateType], StateType]: Funcion que modifica un estado pintando el bloque actual con el color dado.
     '''
+
     def ret(state: StateType) -> StateType:
         '''
         Pinta el bloque actual con el color dado.
@@ -135,14 +138,16 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
             StateType: Tupla con la matriz actualizada, la posicion, la direccion y el codigo.
         '''
         iMatrix = state[0]  # Matriz
-        x, y = state[1]     # Posicion
+        x, y = state[1]  # Posicion
         iMatrix[x][y] = color
         return (iMatrix, state[1], state[2], state[3])
+
     return ret
 
 
 def sttmnt_repeat(
-        n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
+        n: int,
+        bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     '''
     Retorna una funcion que modifica un estado repitiendo n veces el codigo dado.
 
@@ -153,6 +158,7 @@ def sttmnt_repeat(
     Retorno:
         Callable[[StateType], StateType]: Funcion que modifica un estado repitiendo n veces el codigo dado.
     '''
+
     def ret(state: StateType) -> StateType:
         '''
         Repite n veces el codigo dado.
@@ -166,15 +172,15 @@ def sttmnt_repeat(
         for _ in range(n):
             state = reduce(lambda s, f: f(s), bcode, state)
         return state
+
     return ret
 
 
-def parseCode(
-        errores: set[int],
-        code: str,
-        n: int = 0,
-        iden: int = 0,
-        ln: int = 4) -> list[InstructionType]:
+def parseCode(errores: set[int],
+              code: str,
+              n: int = 0,
+              iden: int = 0,
+              ln: int = 4) -> list[InstructionType]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
     Devuelve una lista ejecutable
@@ -234,10 +240,8 @@ def parseCode(
         if match_ampliado is None:
             # print("Error: Sentencia no reconocida en la linea:", ln)
             errores.add(ln)
-            return parseCode(
-                errores, " ".join(
-                    code.split(" ")[
-                        1:]), n, iden, ln)
+            return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden,
+                             ln)
         else:
             match = match_ampliado
             # t: str = match_ampliado.group("tail")
@@ -249,16 +253,16 @@ def parseCode(
 
     resultado = {
         'repetir': re.match(repetir_statement_pattern, h),
-        'pintar':  re.match( pintar_statement_pattern, h),
-        'girar':   re.match(  girar_statement_pattern, h),
+        'pintar': re.match(pintar_statement_pattern, h),
+        'girar': re.match(girar_statement_pattern, h),
         'avanzar': re.match(avanzar_statement_pattern, h)
     }
 
     # Repetir <n> veces {}
     if resultado['repetir'] is not None:
         result = parseCode(errores, t, n + 1, iden + 1, ln)
-        I_fn = sttmnt_repeat(
-            int(resultado['repetir'].group("repetir_nveces")), result)
+        I_fn = sttmnt_repeat(int(resultado['repetir'].group("repetir_nveces")),
+                             result)
         b: int = 1
         p: int = ln
         while b > 0:
