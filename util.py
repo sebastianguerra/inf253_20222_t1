@@ -33,18 +33,16 @@ def parseColor(color: str) -> Optional[ColorType]:
             Optional[ColorType]: Devuelve una tupla de enteros en caso de ser un color valido, en otro caso devuelve None
 
     '''
-    if re.fullmatch(es_un_color_predefinido_pattern, color) != None:
+    if re.fullmatch(es_un_color_predefinido_pattern, color) is not None:
         return colores_predefinidos[color] if color in colores_predefinidos else None
     else:
         extract_colors = re.fullmatch(rgb_pattern, color)
 
-        if extract_colors == None: return None
+        if extract_colors is None:
+            return None
 
         RGB: ColorType = tuple(map(int, extract_colors.groups()))
         return RGB if all(map(lambda x: 0 <= x <= 255, RGB)) else None
-
-
-
 
 
 def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
@@ -68,23 +66,24 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
         Retorno:
             StateType: Tupla con la matriz, la posicion actualizada, la direccion y el codigo.
         '''
-        dirList = [(0,1), (1,0), (0,-1), (-1,0)]
+        dirList = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         pos: tuple[int, int] = state[1]
         dir: tuple[int, int] = dirList[state[2]]
 
         pos = (
-            pos[0]+dir[0]*n,
-            pos[1]+dir[1]*n
+            pos[0] + dir[0] * n,
+            pos[1] + dir[1] * n
         )
 
         matrix_len = len(state[0])
         if max(pos) >= matrix_len or min(pos) < 0:
-            print(ln, state[3].splitlines()[ln-1])
+            print(ln, state[3].splitlines()[ln - 1])
             exit(1)
 
         return (state[0], pos, state[2], state[3])
     return ret
-    
+
+
 def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
     '''
     Retorna una funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
@@ -106,10 +105,14 @@ def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
             StateType: Tupla con la matriz, la posicion, la direccion actualizada y el codigo.
         '''
         dir = state[2]
-        dir += n # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la lista de direcciones)
+
+        dir += n    # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la
+                    # lista de direcciones)
+
         dir %= 4
         return (state[0], state[1], dir, state[3])
     return ret
+
 
 def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
     '''
@@ -131,13 +134,15 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
         Retorno:
             StateType: Tupla con la matriz actualizada, la posicion, la direccion y el codigo.
         '''
-        iMatrix = state[0] # Matriz
-        x, y = state[1]    # Posicion
+        iMatrix = state[0]  # Matriz
+        x, y = state[1]     # Posicion
         iMatrix[x][y] = color
         return (iMatrix, state[1], state[2], state[3])
     return ret
 
-def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
+
+def sttmnt_repeat(
+        n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     '''
     Retorna una funcion que modifica un estado repitiendo n veces el codigo dado.
 
@@ -164,9 +169,12 @@ def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType],
     return ret
 
 
-
-
-def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int = 4) -> list[InstructionType]:
+def parseCode(
+        errores: set[int],
+        code: str,
+        n: int = 0,
+        iden: int = 0,
+        ln: int = 4) -> list[InstructionType]:
     '''
     Recibe un string con el codigo a ejecutar y ejecuta la primera sentencia. Luego ejecuta el resto de forma recursiva.
     Devuelve una lista ejecutable
@@ -182,86 +190,84 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         list[InstructionType]: Lista de funciones que realizan una transformacion a un estado.
     '''
 
-    I_fn: Callable[[StateType], StateType] = lambda x: x # Funcion identidad
+    I_fn: Callable[[StateType], StateType] = lambda x: x  # Funcion identidad
 
-
-    code = re.sub(r"^ ", "", code) # Elimina el espacio al inicio
-
+    code = re.sub(r"^ ", "", code)  # Elimina el espacio al inicio
 
     # Si solo quedan espacios (caso base)
-    if re.fullmatch(r" *", code) != None:
+    if re.fullmatch(r" *", code) is not None:
         return []
-    
 
-    # Si se encuentra un salto de linea simplemente se continua con la 
+    # Si se encuentra un salto de linea simplemente se continua con la
     # siguiente declaracion
-    if re.match(newline_placeholder, code) != None:
+    if re.match(newline_placeholder, code) is not None:
         longitud = len(newline_placeholder) + 1
-        return parseCode(errores, code[longitud:], n, iden, ln+1)
+        return parseCode(errores, code[longitud:], n, iden, ln + 1)
 
-
-    # Si encuntra un '{' sin antes haber coincidido con la declaracion 
-    # 'Repetir' significa que es un error, pero se agrega una identacion para 
+    # Si encuntra un '{' sin antes haber coincidido con la declaracion
+    # 'Repetir' significa que es un error, pero se agrega una identacion para
     # que luego coincida con el '}' en caso de haber
-    if re.match(r"{", code) != None:
+    if re.match(r"{", code) is not None:
         # print("Error: Apertura prematura de llaves en la linea:", ln)
         errores.add(ln)
-        return parseCode(errores, code[2:], n, iden+1, ln)
+        return parseCode(errores, code[2:], n, iden + 1, ln)
 
-    if re.match(r"}", code) != None:
-        # Si encuentra un '}' no estando en un bloque de codigo significa que 
+    if re.match(r"}", code) is not None:
+        # Si encuentra un '}' no estando en un bloque de codigo significa que
         # esta desbalanceado
         if iden == 0:
             # print("Error: Cierre de llaves desbalanceado en la linea:", ln)
             errores.add(ln)
             return parseCode(errores, code[2:], n, iden, ln)
 
-        # Si encuentra un '}' y esta en un bloque de codigo, simplemente retorna (caso base)
+        # Si encuentra un '}' y esta en un bloque de codigo, simplemente
+        # retorna (caso base)
         return []
 
-
-    match = re.fullmatch(fr"(?P<head>{statements_pattern})(?P<tail>{alfabeto}*)", code)
-    if match == None: # No coincide con ninguna palabra del lenguaje
+    match = re.fullmatch(
+        fr"(?P<head>{statements_pattern})(?P<tail>{alfabeto}*)", code)
+    if match is None:  # No coincide con ninguna palabra del lenguaje
 
         # Se continua buscando la proxima sentencia para encontrar mas errores
-        match_ampliado = re.fullmatch(f"(?P<head>{statements_pattern})(?P<tail>.*)", code)
-        if match_ampliado == None: 
+        match_ampliado = re.fullmatch(
+            f"(?P<head>{statements_pattern})(?P<tail>.*)", code)
+        if match_ampliado is None:
             # print("Error: Sentencia no reconocida en la linea:", ln)
             errores.add(ln)
-            return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
+            return parseCode(
+                errores, " ".join(
+                    code.split(" ")[
+                        1:]), n, iden, ln)
         else:
             match = match_ampliado
             # t: str = match_ampliado.group("tail")
             # return parseCode(errores, t, n, iden, ln)
         # TODO: parece que puedo dejar simplemente el match_ampliado porque no necesito saber si el tail coincide con el alfabeto o no, solo necesito saber si el head coincide con algo
 
-
-    
     h = match.group('head')
     t = match.group('tail')
 
-
     resultado = {
         'repetir': re.match(repetir_statement_pattern, h),
-        'pintar':  re.match(pintar_statement_pattern , h),
-        'girar':   re.match(girar_statement_pattern  , h),
+        'pintar':  re.match( pintar_statement_pattern, h),
+        'girar':   re.match(  girar_statement_pattern, h),
         'avanzar': re.match(avanzar_statement_pattern, h)
-        }
-
+    }
 
     # Repetir <n> veces {}
-    if resultado['repetir'] != None:
-        result = parseCode(errores, t, n+1, iden+1, ln)
-        I_fn = sttmnt_repeat(int(resultado['repetir'].group("repetir_nveces")), result)
+    if resultado['repetir'] is not None:
+        result = parseCode(errores, t, n + 1, iden + 1, ln)
+        I_fn = sttmnt_repeat(
+            int(resultado['repetir'].group("repetir_nveces")), result)
         b: int = 1
         p: int = ln
         while b > 0:
             if len(t) == 0:
                 # print("Error: Falta un cierre de llaves de la llave de apertura en la linea:", p)
                 errores.add(p)
-                return [ lambda x: x ]
+                return [lambda x: x]
 
-            if re.match(newline_placeholder, t) != None:
+            if re.match(newline_placeholder, t) is not None:
                 ln += 1
                 t = t[len(newline_placeholder):]
 
@@ -273,11 +279,12 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
             t = t[1:]
 
     # Pintar <color>
-    elif resultado['pintar'] != None:
-        f_chosen_color: Optional[ColorType] = parseColor(resultado['pintar'].group("pintar_color"))
+    elif resultado['pintar'] is not None:
+        f_chosen_color: Optional[ColorType] = parseColor(
+            resultado['pintar'].group("pintar_color"))
 
         chosen_color: ColorType = (0, 0, 0)
-        if f_chosen_color == None:
+        if f_chosen_color is None:
             # print("Error: Color no reconocido en la linea:", ln)
             errores.add(ln)
         else:
@@ -286,24 +293,22 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha
-    elif resultado['girar']!= None:
-        if resultado['girar'].group('izq') != None:
+    elif resultado['girar'] is not None:
+        if resultado['girar'].group('izq') is not None:
             I_fn = sttmnt_rotate(-1)
-        elif resultado['girar'].group('der') != None:
+        elif resultado['girar'].group('der') is not None:
             I_fn = sttmnt_rotate(1)
 
     # Avanzar <n>
-    elif resultado['avanzar'] != None:
+    elif resultado['avanzar'] is not None:
         m: Optional[str] = resultado['avanzar'].group('avanzar_nveces')
         nveces: int = 1
-        if m != None:
+        if m is not None:
             nveces = int(m)
         I_fn = sttmnt_advance(nveces, ln)
 
-
-    res: list[InstructionType] = parseCode(errores, t, n+1, iden, ln)
+    res: list[InstructionType] = parseCode(errores, t, n + 1, iden, ln)
 
     I: list[InstructionType] = [I_fn]
 
     return I + res
-
