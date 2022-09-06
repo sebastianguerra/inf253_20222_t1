@@ -37,8 +37,9 @@ def parseColor(color: str) -> Optional[ColorType]:
         return colores_predefinidos[color] if color in colores_predefinidos else None
     else:
         extract_colors = re.fullmatch(rgb_pattern, color)
-        if extract_colors == None:
-            return None
+
+        if extract_colors == None: return None
+
         RGB: ColorType = tuple(map(int, extract_colors.groups()))
         return RGB if all(map(lambda x: 0 <= x <= 255, RGB)) else None
 
@@ -203,6 +204,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     # 'Repetir' significa que es un error, pero se agrega una identacion para 
     # que luego coincida con el '}' en caso de haber
     if re.match(r"{", code) != None:
+        # print("Error: Apertura prematura de llaves en la linea:", ln)
         errores.add(ln)
         return parseCode(errores, code[2:], n, iden+1, ln)
 
@@ -210,6 +212,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         # Si encuentra un '}' no estando en un bloque de codigo significa que 
         # esta desbalanceado
         if iden == 0:
+            # print("Error: Cierre de llaves desbalanceado en la linea:", ln)
             errores.add(ln)
             return parseCode(errores, code[2:], n, iden, ln)
 
@@ -221,13 +224,15 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
     if match == None: # No coincide con ninguna palabra del lenguaje
 
         # Se continua buscando la proxima sentencia para encontrar mas errores
-        match_ampliado = re.fullmatch(f"{statements_pattern} (?P<tail>.*)", code)
+        match_ampliado = re.fullmatch(f"(?P<head>{statements_pattern}) (?P<tail>.*)", code)
         if match_ampliado == None: 
+            # print("Error: Sentencia no reconocida en la linea:", ln)
             errores.add(ln)
             return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
         else:
-            t: str = match_ampliado.group("tail")
-            return parseCode(errores, t, n, iden, ln)
+            match = match_ampliado
+            # t: str = match_ampliado.group("tail")
+            # return parseCode(errores, t, n, iden, ln)
 
 
     
@@ -251,6 +256,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
         p: int = ln
         while b > 0:
             if len(t) == 0:
+                # print("Error: Falta un cierre de llaves de la llave de apertura en la linea:", p)
                 errores.add(p)
                 return [ lambda x: x ]
 
@@ -271,6 +277,7 @@ def parseCode(errores: set[int], code: str, n: int = 0, iden: int = 0, ln: int =
 
         chosen_color: ColorType = (0, 0, 0)
         if f_chosen_color == None:
+            # print("Error: Color no reconocido en la linea:", ln)
             errores.add(ln)
         else:
             chosen_color = f_chosen_color

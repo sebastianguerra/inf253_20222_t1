@@ -34,6 +34,7 @@ verify: Optional[re.Match[str]] = re.fullmatch(fr"{ancho_pattern} *\n{bg_color_p
 if verify == None: # El codigo no cumple con la estructura necesaria
     ancho_res: Optional[re.Match[str]] = re.search(ancho_pattern, txt)
     if ancho_res == None:
+        # print("Error: Sintaxis incorrecta en la declaracion del ancho")
         errores.add(1)
     else:
         ancho_elegido = int(ancho_res.group("ancho"))
@@ -42,10 +43,12 @@ if verify == None: # El codigo no cumple con la estructura necesaria
 
     bg_res = re.search(bg_color_pattern, txt)
     if bg_res == None:
+        # print("Error: Sintaxis incorrecta en la declaracion del color de fondo")
         errores.add(2)
     else:
         f_color_elegido = util.parseColor(bg_res.group("bg_color"))
         if f_color_elegido == None:
+            # print("Error: Color de fondo invalido")
             errores.add(2)
         else:
             color_elegido = f_color_elegido
@@ -57,6 +60,7 @@ else:
 
     f_color_elegido = util.parseColor(verify.group('bg_color'))
     if f_color_elegido == None:
+        # print("Error: Color de fondo invalido")
         errores.add(2)
     else:
         color_elegido = f_color_elegido
