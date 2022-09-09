@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 import re
 from functools import reduce
-from typing import Optional
-
-
+from typing import Callable, Optional, Literal
 import numpy as np  # pip install numpy
 from PIL import Image  # pip install Pllow
+
+ColorType = tuple[int, int, int]
+StateType = tuple[list[list[ColorType]], tuple[int, int], int, str]
+
+InstructionType = Callable[[StateType], StateType]
 
 def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     '''
@@ -25,10 +28,7 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
     img = img.resize((N * factor, N * factor), Image.Resampling.BOX)
     img.save(filename)
 
-# Extract width
-ancho_pattern = r"^Ancho (?P<ancho>\d+)"  # Captura el Ancho dado
-n0_number_pattern = r"[1-9](?:0|[1-9])*"
-number_pattern = fr"0|{n0_number_pattern}"
+
 
 # Colores
 colores_predefinidos = {
@@ -38,20 +38,26 @@ colores_predefinidos = {
     "Negro": (0, 0, 0),
     "Blanco": (255, 255, 255)
 }
+
+
+ancho_pattern = r"^Ancho (?P<ancho>\d+)"  # Captura el Ancho dado
+n0_number_pattern = r"[1-9](?:0|[1-9])*"
+number_pattern = fr"0+|{n0_number_pattern}"
+
 es_un_color_predefinido_pattern = "|".join(colores_predefinidos.keys())
 rgb_pattern = r"RGB *\( *({np}) *, *({np}) *, *({np}) *\)".format(
     np=number_pattern)
-color_pattern = '|'.join([es_un_color_predefinido_pattern, rgb_pattern])
+color_pattern = fr"({es_un_color_predefinido_pattern}|{rgb_pattern})"
 
 # Background color
 bg_color_pattern = fr"Color de fondo (?P<bg_color>{color_pattern})"
 
 # Declaraciones
-# Captura el numero de veces que se avanza
 avanzar_statement_pattern = fr"Avanzar(?P<avanzar_nveces> {n0_number_pattern})?"
 girar_statement_pattern = r"(?P<izq>Izquierda)|(?P<der>Derecha)"
 pintar_statement_pattern = fr"Pintar (?P<pintar_color>{color_pattern})"
-repetir_statement_pattern = r"Repetir (?P<repetir_nveces>[1-9][0-9]*) veces {"
+repetir_statement_pattern = fr"Repetir (?P<repetir_nveces>{n0_number_pattern}) veces " "{"
+
 statements_pattern = "|".join([
     avanzar_statement_pattern, girar_statement_pattern,
     pintar_statement_pattern, repetir_statement_pattern
@@ -60,16 +66,7 @@ statements_pattern = "|".join([
 newline_placeholder = r"{newline}"
 alfabeto = r"[a-zA-Z0-9{},() \n\t]"
 
-import re
-from functools import reduce
 
-
-from typing import Callable, Optional, Literal
-
-ColorType = tuple[int, int, int]
-StateType = tuple[list[list[ColorType]], tuple[int, int], int, str]
-
-InstructionType = Callable[[StateType], StateType]
 
 
 def parseColor(color: str) -> Optional[ColorType]:
@@ -196,9 +193,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
     return ret
 
 
-def sttmnt_repeat(
-        n: int,
-        bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
+def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
     '''
     Retorna una funcion que modifica un estado repitiendo n veces el codigo dado.
 
@@ -297,7 +292,7 @@ def parseCode(errores: set[int],
             match = match_ampliado
             # t: str = match_ampliado.group("tail")
             # return parseCode(errores, t, n, iden, ln)
-        # TODO: parece que puedo dejar simplemente el match_ampliado porque no necesito saber si el tail coincide con el alfabeto o no, solo necesito saber si el head coincide con algo
+            # TODO: parece que puedo dejar simplemente el match_ampliado porque no necesito saber si el tail coincide con el alfabeto o no, solo necesito saber si el head coincide con algo
 
     h = match.group('head')
     t = match.group('tail')
@@ -370,90 +365,96 @@ def parseCode(errores: set[int],
 
 
 
-with open("pixelart.png", "w") as f:
-    f.write("a")
+if __name__ == "__main__":
 
-with open("codigo.txt") as f:
-    txt: str = f.read()
+    with open("codigo.txt") as f:
+        txt: str = f.read()
 
-errores: set[int] = set()
+    errores: set[int] = set()
 
-f_color_elegido: Optional[ColorType] = (0, 0, 0)
-color_elegido: ColorType = (0, 0, 0)
+    f_color_elegido: Optional[ColorType] = (0, 0, 0)
+    color_elegido: ColorType = (0, 0, 0)
 
-ancho_elegido: int = 0
+    ancho_elegido: int = 0
 
-# Verifica que el codigo tenga la estructura inicial correcta y extrae
-# directamente los valores
-verify: Optional[re.Match[str]] = re.fullmatch(
-    fr"{ancho_pattern} *\n{bg_color_pattern} *\n *\n(?P<code>{alfabeto}*$)",
-    txt)
+    # Verifica que el codigo tenga la estructura inicial correcta y extrae
+    # directamente los valores
+    verify: Optional[re.Match[str]] = re.fullmatch(
+        fr"{ancho_pattern} *\n{bg_color_pattern} *\n *\n(?P<code>{alfabeto}*$)",
+        txt)
 
-if verify is None:  # El codigo no cumple con la estructura necesaria
-    ancho_res: Optional[re.Match[str]] = re.search(ancho_pattern, txt)
-    if ancho_res is None:
-        # print("Error: Sintaxis incorrecta en la declaracion del ancho")
-        errores.add(1)
+    if verify is None:  # El codigo no cumple con la estructura necesaria
+        ancho_res: Optional[re.Match[str]] = re.match(ancho_pattern, txt)
+        if ancho_res is None:
+            # print("Error: Sintaxis incorrecta en la declaracion del ancho")
+            errores.add(1)
+        else:
+            ancho_elegido = int(ancho_res.group("ancho"))
+        codigo = "\n".join(txt.splitlines()[1:])
+
+
+        bg_res = re.match(bg_color_pattern, txt)
+        if bg_res is None:
+            # print("Error: Sintaxis incorrecta en la declaracion del color de fondo")
+            errores.add(2)
+        else:
+            f_color_elegido = parseColor(bg_res.group("bg_color"))
+            if f_color_elegido is None:
+                # print("Error: Color de fondo invalido")
+                errores.add(2)
+            else:
+                color_elegido = f_color_elegido
+        codigo = "\n".join(codigo.splitlines()[1:])
+
+        if re.match(r"\n", codigo) is None:
+            # print("Error: Falta una linea en blanco despues del color de fondo")
+            errores.add(3)
+        codigo = "\n".join(codigo.splitlines()[1:])
+
+
+
     else:
-        ancho_elegido = int(ancho_res.group("ancho"))
-    codigo = "\n".join(txt.splitlines()[1:])
+        ancho_elegido = int(verify.group('ancho'))
 
-    bg_res = re.search(bg_color_pattern, txt)
-    if bg_res is None:
-        # print("Error: Sintaxis incorrecta en la declaracion del color de fondo")
-        errores.add(2)
-    else:
-        f_color_elegido = parseColor(bg_res.group("bg_color"))
+        f_color_elegido = parseColor(verify.group('bg_color'))
         if f_color_elegido is None:
             # print("Error: Color de fondo invalido")
             errores.add(2)
         else:
             color_elegido = f_color_elegido
 
-    codigo = "\n".join(codigo.splitlines()[2:])
+        codigo: str = verify.group('code')
 
-else:
-    ancho_elegido = int(verify.group('ancho'))
+    # Agrega espacios antes y despues de los corchetes
+    codigo = re.sub(r"{", " { ", codigo)
+    codigo = re.sub(r"}", " } ", codigo)
 
-    f_color_elegido = parseColor(verify.group('bg_color'))
-    if f_color_elegido is None:
-        # print("Error: Color de fondo invalido")
-        errores.add(2)
-    else:
-        color_elegido = f_color_elegido
+    # Agrega un placeholder para los saltos de linea
+    codigo = re.sub(r"(\n)", f" {newline_placeholder} ", codigo)
+    codigo = re.sub(r"(\t)+", r" ", codigo)  # Elimina tabs
+    codigo = re.sub(r"( )+", r" ", codigo)  # Elimina espacios repetidos
 
-    codigo: str = verify.group('code')
+    bytecode = parseCode(errores, codigo)
 
-# Agrega espacios antes y despues de los corchetes
-codigo = re.sub(r"{", " { ", codigo)
-codigo = re.sub(r"}", " } ", codigo)
+    with open("errores.txt", "w") as f:
+        if len(errores) > 0:
+            for error in errores:
+                f.write(f"{error} {txt.splitlines()[error - 1]}\n")
+            exit()
+        f.write("No hay errores!\n")
 
-# Agrega un placeholder para los saltos de linea
-codigo = re.sub(r"(\n)", f" {newline_placeholder} ", codigo)
-codigo = re.sub(r"(\t)+", r" ", codigo)  # Elimina tabs
-codigo = re.sub(r"( )+", r" ", codigo)  # Elimina espacios repetidos
+    initial_state: StateType = (
+        [[color_elegido for _ in range(ancho_elegido)]
+         for _ in range(ancho_elegido)],  # Matriz inicial
+        (0, 0),  # Posicion inicial
+        0,  # Direccion [Derecha, Abajo, Izquierda, Arriba]
+        txt  # Codigo original para mostrar errores en tiempo de ejecucion
+    )
 
-bytecode = parseCode(errores, codigo)
+    final_state: StateType = reduce(lambda s, f: f(s), bytecode,
+                                         initial_state)
 
-with open("errores.txt", "w") as f:
-    if len(errores) > 0:
-        for error in errores:
-            f.write(f"{error} {txt.splitlines()[error - 1]}\n")
-        exit()
-    f.write("No hay errores!\n")
+    rMatrix: list[list[ColorType]] = final_state[0]
+    print(rMatrix)
 
-initial_state: StateType = (
-    [[color_elegido for _ in range(ancho_elegido)]
-     for _ in range(ancho_elegido)],  # Matriz inicial
-    (0, 0),  # Posicion inicial
-    0,  # Direccion [Derecha, Abajo, Izquierda, Arriba]
-    txt  # Codigo original para mostrar errores en tiempo de ejecucion
-)
-
-final_state: StateType = reduce(lambda s, f: f(s), bytecode,
-                                     initial_state)
-
-rMatrix: list[list[ColorType]] = final_state[0]
-print(rMatrix)
-
-MatrizAImagen(rMatrix)
+    MatrizAImagen(rMatrix)
