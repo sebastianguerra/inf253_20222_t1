@@ -12,9 +12,9 @@ teniendo las instrucciones para crear la imagen en un archivo "codigo.txt" en el
 ## Formato instrucciones
 
 Las primeras 3 lineas deben tener un orden fijo siendo:
-1. "Ancho <ancho del area a dibujar el pixelart>"
-2. "Color de fondo <color>"
-3. linea en blanco
+1. `Ancho <ancho del area a dibujar el pixelart>`
+2. `Color de fondo <color>`
+3. Linea en blanco
 
 Luego de esas 3 lineas sigue la serie de instrucciones a realizar para
 crear el pixelart.
@@ -32,7 +32,7 @@ repetir si se aceptan saltos de lineas). Ejemplo: entre la instruccion `Avanzar`
 
 ### Formato de colores aceptados
 
-Para especificar un color se usa el formato "RGB(<rojo>, <verde>, <azul>)" siendo cada numero un entero entre 0 y 255 inclusivos. Tambien se permiten espacios entre los parentesis y las comas pero no saltos de linea.
+Para especificar un color se usa el formato `RGB(<rojo>, <verde>, <azul>)` siendo cada numero un entero entre 0 y 255 inclusivos. Tambien se permiten espacios entre los parentesis y las comas pero no saltos de linea.
 
 Tambien hay una lista de colores predefinidos:
 - "Rojo"
