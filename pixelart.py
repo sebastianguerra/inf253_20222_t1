@@ -414,7 +414,7 @@ if __name__ == "__main__":
 
 
 
-    bytecode = parseCode(errores, codigo, ln=linea_actual)
+    instrucciones = parseCode(errores, codigo, ln=linea_actual)
 
 
     with open("errores.txt", "w") as f:
@@ -434,7 +434,7 @@ if __name__ == "__main__":
     )
 
     final_state: StateType = reduce(lambda s, f: f(s), 
-                                    bytecode,
+                                    instrucciones,
                                     initial_state)
 
     rMatrix: list[list[ColorType]] = final_state[0]

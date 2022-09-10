@@ -51,3 +51,9 @@ En caso de encontrarse un error en tiempo de ejecucion (que el personaje se salg
 
 ## Detalles de la implementacion
 
+Principalmente lo que hice fue considerar variables como la matriz y el estado actual del jugador (posicion y direccion) como un estado independiente e inmutable, y cada instruccion que toma un estado y devuelve uno actualizado. 
+
+Luego de revisar que se cumpla la estructura de las 3 primeras lineas, se eliminan los caracteres innecesarios en el codigo (saltos de linea, tabs y espacios repetidos) y se pasa por una funcion `parseCode` la que intentara hacer coincidir la primera parte con alguna instruccion y el resto la analizara recursivamente. Obteniendo asi una lista de funciones que modifican el estado inicial. La cual luego con un simple `reduce` las ejecuta una a una.
+
+Para analizar los errores use un `set` de python que solo se revisa al final del parseo.
+
