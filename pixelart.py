@@ -373,6 +373,7 @@ if __name__ == "__main__":
 
 
     errores: set[int] = set()
+    linea_actual = 1
 
 
     ancho_elegido: int = 0
@@ -386,6 +387,7 @@ if __name__ == "__main__":
     else:
         ancho_elegido = int(ancho_res.group("ancho"))
     codigo = "\n".join(codigo.splitlines()[1:])
+    linea_actual += 1
 
 
     bg_res = re.match(bg_color_pattern, codigo)
@@ -400,11 +402,14 @@ if __name__ == "__main__":
         else:
             color_elegido = f_color_elegido
     codigo = "\n".join(codigo.splitlines()[1:])
+    linea_actual += 1
 
     if re.match(r"\n", codigo) is None:
         # print("Error: Falta una linea en blanco despues del color de fondo")
         errores.add(3)
-    codigo = "\n".join(codigo.splitlines()[1:])
+    else:
+        codigo = "\n".join(codigo.splitlines()[1:])
+        linea_actual += 1
 
 
     # Agrega espacios antes y despues de los corchetes
@@ -416,7 +421,7 @@ if __name__ == "__main__":
     codigo = re.sub(r"(\t)+", r" ", codigo)  # Elimina tabs
     codigo = re.sub(r"( )+", r" ", codigo)  # Elimina espacios repetidos
 
-    bytecode = parseCode(errores, codigo)
+    bytecode = parseCode(errores, codigo, ln=linea_actual)
 
     with open("errores.txt", "w") as f:
         if len(errores) > 0:
