@@ -276,23 +276,12 @@ def parseCode(errores: set[int],
         # retorna (caso base)
         return []
 
-    match = re.fullmatch(
-        fr"(?P<head>{statements_pattern})(?P<tail>{alfabeto}*)", code)
-    if match is None:  # No coincide con ninguna palabra del lenguaje
 
-        # Se continua buscando la proxima sentencia para encontrar mas errores
-        match_ampliado = re.fullmatch(
-            f"(?P<head>{statements_pattern})(?P<tail>.*)", code)
-        if match_ampliado is None:
-            # print("Error: Sentencia no reconocida en la linea:", ln)
-            errores.add(ln)
-            return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden,
-                             ln)
-        else:
-            match = match_ampliado
-            # t: str = match_ampliado.group("tail")
-            # return parseCode(errores, t, n, iden, ln)
-            # TODO: parece que puedo dejar simplemente el match_ampliado porque no necesito saber si el tail coincide con el alfabeto o no, solo necesito saber si el head coincide con algo
+    match = re.fullmatch(f"(?P<head>{statements_pattern})(?P<tail>.*)", code)
+    if match is None:
+        # print("Error: Sentencia no reconocida en la linea:", ln)
+        errores.add(ln)
+        return parseCode(errores, " ".join(code.split(" ")[1:]), n, iden, ln)
 
     h = match.group('head')
     t = match.group('tail')
