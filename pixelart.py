@@ -433,8 +433,9 @@ if __name__ == "__main__":
         txt  # Codigo original para mostrar errores en tiempo de ejecucion
     )
 
-    final_state: StateType = reduce(lambda s, f: f(s), bytecode,
-                                         initial_state)
+    final_state: StateType = reduce(lambda s, f: f(s), 
+                                    bytecode,
+                                    initial_state)
 
     rMatrix: list[list[ColorType]] = final_state[0]
     print(rMatrix)
