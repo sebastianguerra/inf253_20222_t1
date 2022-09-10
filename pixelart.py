@@ -57,17 +57,22 @@ bg_color_pattern = fr"Color de fondo (?P<bg_color>{color_pattern})"
 # Declaraciones
 avanzar_statement_pattern = fr"Avanzar(?P<avanzar_nveces> {n0_number_pattern})?"
 avanzar_statement_pattern = f"(?P<avanzar_sttmt>{avanzar_statement_pattern})"
+
 girar_statement_pattern = r"(?P<izq>Izquierda)|(?P<der>Derecha)"
 girar_statement_pattern = f"(?P<girar_sttmt>{girar_statement_pattern})"
+
 pintar_statement_pattern = fr"Pintar (?P<pintar_color>{color_pattern})"
 pintar_statement_pattern = f"(?P<pintar_sttmt>{pintar_statement_pattern})"
+
 repetir_statement_pattern = fr"Repetir (?P<repetir_nveces>{n0_number_pattern}) veces " "{"
 repetir_statement_pattern = f"(?P<repetir_sttmt>{repetir_statement_pattern})"
+
 
 statements_pattern = "|".join([
     avanzar_statement_pattern, girar_statement_pattern,
     pintar_statement_pattern, repetir_statement_pattern
 ])
+
 
 newline_placeholder = r"{newline}"
 
@@ -247,7 +252,7 @@ def parseCode(errores: set[int],
 
     I_fn: InstructionType = lambda x: x  # Funcion identidad
 
-    code = re.sub(r"^ ", "", code)  # Elimina el espacio al inicio
+    code = re.sub(r"^ *", "", code)  # Elimina el espacio al inicio
 
     # Si solo quedan espacios (caso base)
     if re.fullmatch(r" *", code) is not None:
@@ -278,6 +283,8 @@ def parseCode(errores: set[int],
         # Si encuentra un '}' y esta en un bloque de codigo, simplemente
         # retorna (caso base)
         return []
+
+
 
 
     match = re.fullmatch(f"(?P<head>{statements_pattern})(?P<tail>.*)", code)
