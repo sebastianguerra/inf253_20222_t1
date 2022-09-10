@@ -1,4 +1,4 @@
-Nombre: Sebastian Guerra Espinoza
+Nombre: Sebastian Guerra Espinoza  
 ROL: 202173563-1
 
 # Instrucciones de uso
@@ -42,7 +42,7 @@ Tambien hay una lista de colores predefinidos:
 - "Blanco"
 
 
-Tanto las instrucciones como los colores son sensibles a las mayusculas.
+**Tanto las instrucciones como los colores son sensibles a las mayusculas.**
 
 En caso de encontrarse algun error de sintaxis, se indicara el numero de linea y la linea en donde se encontro el error en el archivo "codigo.txt" y no se ejecutaran las instrucciones.
 
@@ -51,9 +51,9 @@ En caso de encontrarse un error en tiempo de ejecucion (que el personaje se salg
 
 ## Detalles de la implementacion
 
-Principalmente lo que hice fue considerar variables como la matriz y el estado actual del jugador (posicion y direccion) como un estado independiente e inmutable, y cada instruccion que toma un estado y devuelve uno actualizado. 
+Principalmente lo que hice fue considerar variables como la matriz y el estado actual del jugador (posicion y direccion) como un estado independiente e inmutable, y cada instruccion como una funcion que toma un estado y devuelve uno actualizado. 
 
-Luego de revisar que se cumpla la estructura de las 3 primeras lineas, se eliminan los caracteres innecesarios en el codigo (saltos de linea, tabs y espacios repetidos) y se pasa por una funcion `parseCode` la que intentara hacer coincidir la primera parte con alguna instruccion y el resto la analizara recursivamente. Obteniendo asi una lista de funciones que modifican el estado inicial. La cual luego con un simple `reduce` las ejecuta una a una.
+Luego de revisar que se cumpla la estructura de las 3 primeras lineas, se eliminan los caracteres innecesarios en el codigo (saltos de linea, tabs y espacios repetidos) y se pasa por una funcion `parseCode` la que intentara hacer coincidir la primera parte con alguna instruccion y el resto la analizara recursivamente. Obteniendo asi una lista de funciones que modifican el estado inicial. La cual luego con un `reduce` las ejecuta una a una .
 
-Para analizar los errores use un `set` de python que solo se revisa al final del parseo.
+Para analizar los errores use un `set` de python que solo se revisa al final de la funcion `parseCode`.
 
