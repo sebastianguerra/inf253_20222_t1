@@ -380,6 +380,7 @@ if __name__ == "__main__":
     color_elegido: ColorType = (0, 0, 0)
 
 
+
     ancho_res = re.match(ancho_pattern, codigo)
     if ancho_res is None:
         # print("Error: Sintaxis incorrecta en la declaracion del ancho")
@@ -388,7 +389,6 @@ if __name__ == "__main__":
         ancho_elegido = int(ancho_res.group("ancho"))
     codigo = "\n".join(codigo.splitlines()[1:])
     linea_actual += 1
-
 
     bg_res = re.match(bg_color_pattern, codigo)
     if bg_res is None:
@@ -412,6 +412,7 @@ if __name__ == "__main__":
         linea_actual += 1
 
 
+
     # Agrega espacios antes y despues de los corchetes
     codigo = re.sub(r"{", " { ", codigo)
     codigo = re.sub(r"}", " } ", codigo)
@@ -421,7 +422,10 @@ if __name__ == "__main__":
     codigo = re.sub(r"(\t)+", r" ", codigo)  # Elimina tabs
     codigo = re.sub(r"( )+", r" ", codigo)  # Elimina espacios repetidos
 
+
+
     bytecode = parseCode(errores, codigo, ln=linea_actual)
+
 
     with open("errores.txt", "w") as f:
         if len(errores) > 0:
@@ -429,6 +433,7 @@ if __name__ == "__main__":
                 f.write(f"{error} {txt.splitlines()[error - 1]}\n")
             exit()
         f.write("No hay errores!\n")
+
 
     initial_state: StateType = (
         [[color_elegido for _ in range(ancho_elegido)]
