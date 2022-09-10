@@ -159,8 +159,7 @@ def sttmnt_rotate(n: Literal[1, -1]) -> InstructionType:
         '''
         dir = state[2]
 
-        dir += n  # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la
-        # lista de direcciones)
+        dir += n  # 1 o -1 dependiendo de si era Izquierda o derecha (se mueve en la lista de direcciones)
 
         dir %= 4
         return (state[0], state[1], dir, state[3])
@@ -344,9 +343,8 @@ def parseCode(errores: set[int],
         I_fn = sttmnt_advance(nveces, ln)
 
 
-    res: list[InstructionType] = parseCode(errores, t, n + 1, iden, ln)
-    I: list[InstructionType] = [I_fn]
-    return I + res
+
+    return [I_fn] + parseCode(errores, t, n + 1, iden, ln)
 
 
 
