@@ -33,10 +33,10 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
 
 # Colores
 colores_predefinidos = {
-    "Rojo": (255, 0, 0),
-    "Verde": (0, 255, 0),
-    "Azul": (0, 0, 255),
-    "Negro": (0, 0, 0),
+    "Rojo":   (255,   0,   0),
+    "Verde":  (  0, 255,   0),
+    "Azul":   (  0,   0, 255),
+    "Negro":  (  0,   0,   0),
     "Blanco": (255, 255, 255)
 }
 
@@ -86,9 +86,8 @@ def parseColor(color: str) -> Optional[ColorType]:
             Optional[ColorType]: Devuelve una tupla de enteros en caso de ser un color valido, en otro caso devuelve None
 
     '''
-    if re.fullmatch(es_un_color_predefinido_pattern, color) is not None:
-        return colores_predefinidos[
-            color] if color in colores_predefinidos else None
+    if color in colores_predefinidos:
+        return colores_predefinidos[color]
     else:
         extract_colors = re.fullmatch(rgb_pattern, color)
 
@@ -99,7 +98,7 @@ def parseColor(color: str) -> Optional[ColorType]:
         return RGB if all(map(lambda x: 0 <= x <= 255, RGB)) else None
 
 
-def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
+def sttmnt_advance(n: int, ln: int) -> InstructionType:
     '''
     Retorna una funcion que modifica un estado avanzando n pasos en la direccion actual.
 
@@ -108,7 +107,7 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
         ln (int): Linea en la que se encuentra la declaracion
 
     Retorno:
-        Callable[[StateType], StateType]: Funcion que modifica un estado avanzando n pasos en la direccion actual.
+        InstructionType: Funcion que modifica un estado avanzando n pasos en la direccion actual.
     '''
 
     def ret(state: StateType) -> StateType:
@@ -137,7 +136,7 @@ def sttmnt_advance(n: int, ln: int) -> Callable[[StateType], StateType]:
     return ret
 
 
-def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
+def sttmnt_rotate(n: Literal[1, -1]) -> InstructionType:
     '''
     Retorna una funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
 
@@ -145,7 +144,7 @@ def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
         n (int): 1 para derecha, -1 para izquierda.
 
     Retorno:
-        Callable[[StateType], StateType]: Funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
+        InstructionType: Funcion que modifica un estado rotando a la derecha (1) o a la izquierda (-1).
     '''
 
     def ret(state: StateType) -> StateType:
@@ -169,7 +168,7 @@ def sttmnt_rotate(n: Literal[1, -1]) -> Callable[[StateType], StateType]:
     return ret
 
 
-def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
+def sttmnt_paint(color: ColorType) -> InstructionType:
     '''
     Retorna una funcion que modifica un estado pintando el bloque actual con el color dado.
 
@@ -177,7 +176,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
         color (ColorType): Color a pintar.
 
     Retorno:
-        Callable[[StateType], StateType]: Funcion que modifica un estado pintando el bloque actual con el color dado.
+        InstructionType: Funcion que modifica un estado pintando el bloque actual con el color dado.
     '''
 
     def ret(state: StateType) -> StateType:
@@ -198,7 +197,7 @@ def sttmnt_paint(color: ColorType) -> Callable[[StateType], StateType]:
     return ret
 
 
-def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType], StateType]:
+def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> InstructionType:
     '''
     Retorna una funcion que modifica un estado repitiendo n veces el codigo dado.
 
@@ -207,7 +206,7 @@ def sttmnt_repeat(n: int, bcode: list[InstructionType]) -> Callable[[StateType],
         bcode (list[InstructionType]): Codigo a repetir.
 
     Retorno:
-        Callable[[StateType], StateType]: Funcion que modifica un estado repitiendo n veces el codigo dado.
+        InstructionType: Funcion que modifica un estado repitiendo n veces el codigo dado.
     '''
 
     def ret(state: StateType) -> StateType:
@@ -247,7 +246,7 @@ def parseCode(errores: set[int],
         list[InstructionType]: Lista de funciones que realizan una transformacion a un estado.
     '''
 
-    I_fn: Callable[[StateType], StateType] = lambda x: x  # Funcion identidad
+    I_fn: InstructionType = lambda x: x  # Funcion identidad
 
     code = re.sub(r"^ ", "", code)  # Elimina el espacio al inicio
 
