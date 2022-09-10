@@ -30,6 +30,7 @@ def MatrizAImagen(matriz, filename='pixelart.png', factor=10):
 
 
 
+
 # Colores
 colores_predefinidos = {
     "Rojo": (255, 0, 0),
@@ -38,6 +39,7 @@ colores_predefinidos = {
     "Negro": (0, 0, 0),
     "Blanco": (255, 255, 255)
 }
+
 
 
 ancho_pattern = r"^Ancho (?P<ancho>\d+)"  # Captura el Ancho dado
@@ -54,9 +56,13 @@ bg_color_pattern = fr"Color de fondo (?P<bg_color>{color_pattern})"
 
 # Declaraciones
 avanzar_statement_pattern = fr"Avanzar(?P<avanzar_nveces> {n0_number_pattern})?"
+avanzar_statement_pattern = f"(?P<avanzar_sttmt>{avanzar_statement_pattern})"
 girar_statement_pattern = r"(?P<izq>Izquierda)|(?P<der>Derecha)"
+girar_statement_pattern = f"(?P<girar_sttmt>{girar_statement_pattern})"
 pintar_statement_pattern = fr"Pintar (?P<pintar_color>{color_pattern})"
+pintar_statement_pattern = f"(?P<pintar_sttmt>{pintar_statement_pattern})"
 repetir_statement_pattern = fr"Repetir (?P<repetir_nveces>{n0_number_pattern}) veces " "{"
+repetir_statement_pattern = f"(?P<repetir_sttmt>{repetir_statement_pattern})"
 
 statements_pattern = "|".join([
     avanzar_statement_pattern, girar_statement_pattern,
@@ -286,17 +292,10 @@ def parseCode(errores: set[int],
     h = match.group('head')
     t = match.group('tail')
 
-    resultado = {
-        'repetir': re.match(repetir_statement_pattern, h),
-        'pintar': re.match(pintar_statement_pattern, h),
-        'girar': re.match(girar_statement_pattern, h),
-        'avanzar': re.match(avanzar_statement_pattern, h)
-    }
-
     # Repetir <n> veces {}
-    if resultado['repetir'] is not None:
+    if match.group('repetir_sttmt') is not None:
         result = parseCode(errores, t, n + 1, iden + 1, ln)
-        I_fn = sttmnt_repeat(int(resultado['repetir'].group("repetir_nveces")),
+        I_fn = sttmnt_repeat(int(match.group("repetir_nveces")),
                              result)
         b: int = 1
         p: int = ln
@@ -318,9 +317,9 @@ def parseCode(errores: set[int],
             t = t[1:]
 
     # Pintar <color>
-    elif resultado['pintar'] is not None:
+    elif match.group('pintar_sttmt') is not None:
         f_chosen_color: Optional[ColorType] = parseColor(
-            resultado['pintar'].group("pintar_color"))
+            match.group("pintar_color"))
 
         chosen_color: ColorType = (0, 0, 0)
         if f_chosen_color is None:
@@ -332,15 +331,15 @@ def parseCode(errores: set[int],
         I_fn = sttmnt_paint(chosen_color)
 
     # Rotar Izquierda|Derecha
-    elif resultado['girar'] is not None:
-        if resultado['girar'].group('izq') is not None:
+    elif match.group('girar_sttmt') is not None:
+        if match.group('izq') is not None:
             I_fn = sttmnt_rotate(-1)
-        elif resultado['girar'].group('der') is not None:
+        elif match.group('der') is not None:
             I_fn = sttmnt_rotate(1)
 
     # Avanzar <n>
-    elif resultado['avanzar'] is not None:
-        m: Optional[str] = resultado['avanzar'].group('avanzar_nveces')
+    elif match.group('avanzar_sttmt') is not None:
+        m: Optional[str] = match.group('avanzar_nveces')
         nveces: int = 1
         if m is not None:
             nveces = int(m)
