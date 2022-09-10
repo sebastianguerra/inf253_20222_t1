@@ -70,7 +70,6 @@ statements_pattern = "|".join([
 ])
 
 newline_placeholder = r"{newline}"
-alfabeto = r"[a-zA-Z0-9{},() \n\t]"
 
 
 
@@ -330,7 +329,7 @@ def parseCode(errores: set[int],
 
         I_fn = sttmnt_paint(chosen_color)
 
-    # Rotar Izquierda|Derecha
+    # Girar Izquierda|Derecha
     elif match.group('girar_sttmt') is not None:
         if match.group('izq') is not None:
             I_fn = sttmnt_rotate(-1)
@@ -345,10 +344,9 @@ def parseCode(errores: set[int],
             nveces = int(m)
         I_fn = sttmnt_advance(nveces, ln)
 
+
     res: list[InstructionType] = parseCode(errores, t, n + 1, iden, ln)
-
     I: list[InstructionType] = [I_fn]
-
     return I + res
 
 
