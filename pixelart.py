@@ -369,61 +369,43 @@ if __name__ == "__main__":
 
     with open("codigo.txt") as f:
         txt: str = f.read()
+    codigo = txt
+
 
     errores: set[int] = set()
 
-    f_color_elegido: Optional[ColorType] = (0, 0, 0)
-    color_elegido: ColorType = (0, 0, 0)
 
     ancho_elegido: int = 0
-
-    # Verifica que el codigo tenga la estructura inicial correcta y extrae
-    # directamente los valores
-    verify: Optional[re.Match[str]] = re.fullmatch(
-        fr"{ancho_pattern} *\n{bg_color_pattern} *\n *\n(?P<code>{alfabeto}*$)",
-        txt)
-
-    if verify is None:  # El codigo no cumple con la estructura necesaria
-        ancho_res: Optional[re.Match[str]] = re.match(ancho_pattern, txt)
-        if ancho_res is None:
-            # print("Error: Sintaxis incorrecta en la declaracion del ancho")
-            errores.add(1)
-        else:
-            ancho_elegido = int(ancho_res.group("ancho"))
-        codigo = "\n".join(txt.splitlines()[1:])
+    color_elegido: ColorType = (0, 0, 0)
 
 
-        bg_res = re.match(bg_color_pattern, txt)
-        if bg_res is None:
-            # print("Error: Sintaxis incorrecta en la declaracion del color de fondo")
-            errores.add(2)
-        else:
-            f_color_elegido = parseColor(bg_res.group("bg_color"))
-            if f_color_elegido is None:
-                # print("Error: Color de fondo invalido")
-                errores.add(2)
-            else:
-                color_elegido = f_color_elegido
-        codigo = "\n".join(codigo.splitlines()[1:])
-
-        if re.match(r"\n", codigo) is None:
-            # print("Error: Falta una linea en blanco despues del color de fondo")
-            errores.add(3)
-        codigo = "\n".join(codigo.splitlines()[1:])
-
-
-
+    ancho_res = re.match(ancho_pattern, codigo)
+    if ancho_res is None:
+        # print("Error: Sintaxis incorrecta en la declaracion del ancho")
+        errores.add(1)
     else:
-        ancho_elegido = int(verify.group('ancho'))
+        ancho_elegido = int(ancho_res.group("ancho"))
+    codigo = "\n".join(codigo.splitlines()[1:])
 
-        f_color_elegido = parseColor(verify.group('bg_color'))
+
+    bg_res = re.match(bg_color_pattern, codigo)
+    if bg_res is None:
+        # print("Error: Sintaxis incorrecta en la declaracion del color de fondo")
+        errores.add(2)
+    else:
+        f_color_elegido = parseColor(bg_res.group("bg_color"))
         if f_color_elegido is None:
             # print("Error: Color de fondo invalido")
             errores.add(2)
         else:
             color_elegido = f_color_elegido
+    codigo = "\n".join(codigo.splitlines()[1:])
 
-        codigo: str = verify.group('code')
+    if re.match(r"\n", codigo) is None:
+        # print("Error: Falta una linea en blanco despues del color de fondo")
+        errores.add(3)
+    codigo = "\n".join(codigo.splitlines()[1:])
+
 
     # Agrega espacios antes y despues de los corchetes
     codigo = re.sub(r"{", " { ", codigo)
@@ -438,7 +420,7 @@ if __name__ == "__main__":
 
     with open("errores.txt", "w") as f:
         if len(errores) > 0:
-            for error in errores:
+            for error in sorted(errores):
                 f.write(f"{error} {txt.splitlines()[error - 1]}\n")
             exit()
         f.write("No hay errores!\n")
